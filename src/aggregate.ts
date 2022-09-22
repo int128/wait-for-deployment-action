@@ -42,7 +42,7 @@ export const aggregate = (q: DeploymentsAtCommitQuery): Outputs => {
       case DeploymentState.Error:
         outputs.success = false
         outputs.summary.push(
-          `- :x: ${node.environment} (${toLink(node.state, node.latestStatus?.logUrl)})): ${
+          `- :x: ${node.environment} (${toLink(node.state, node.latestStatus?.logUrl)}): ${
             node.latestStatus?.description ?? ''
           }`
         )
@@ -50,7 +50,7 @@ export const aggregate = (q: DeploymentsAtCommitQuery): Outputs => {
 
       case DeploymentState.Active:
         outputs.summary.push(
-          `- :white_check_mark: ${node.environment} (${toLink(node.state, node.latestStatus?.logUrl)})): ${
+          `- :white_check_mark: ${node.environment} (${toLink(node.state, node.latestStatus?.logUrl)}): ${
             node.latestStatus?.description ?? ''
           }`
         )
