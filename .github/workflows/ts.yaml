@@ -36,15 +36,15 @@ jobs:
       - uses: int128/deployment-action@v1
         id: app1
         with:
-          environment-suffix: app1
+          environment-suffix: /app1
       - uses: int128/deployment-action@v1
         id: app2
         with:
-          environment-suffix: app2
+          environment-suffix: /app2
       - uses: int128/deployment-action@v1
         id: app3
         with:
-          environment-suffix: app3
+          environment-suffix: /app3
       - name: e2e-test
         uses: ./
 
