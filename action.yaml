@@ -11,6 +11,14 @@ inputs:
     required: true
     default: ${{ github.token }}
 
+outputs:
+  completed:
+    description: true if all deployments are completed
+  success:
+    description: true if all deployments are success
+  summary:
+    description: markdown list of all deployments
+
 runs:
   using: 'node16'
   main: 'dist/index.js'
