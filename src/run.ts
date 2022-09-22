@@ -27,5 +27,9 @@ export const run = async (inputs: Inputs): Promise<Outputs> => {
   core.info(JSON.stringify(deployments, undefined, 2))
   core.endGroup()
 
-  return aggregate(deployments)
+  const outputs = aggregate(deployments)
+  return {
+    ...outputs,
+    summary: outputs.summary.join('\n'),
+  }
 }
