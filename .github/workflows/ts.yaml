@@ -55,21 +55,21 @@ jobs:
           app3_id: ${{ steps.app3.outputs.id }}
         with:
           script: |
-            await github.repos.createDeploymentStatus({
+            await github.rest.repos.createDeploymentStatus({
               owner: context.repo.owner,
               repo: context.repo.repo,
               deployment_id: process.env.app1_id,
               state: 'success',
               log_url: `https://argocd.example.com/pr-${context.issue.number}--app1`,
             })
-            await github.repos.createDeploymentStatus({
+            await github.rest.repos.createDeploymentStatus({
               owner: context.repo.owner,
               repo: context.repo.repo,
               deployment_id: process.env.app2_id,
               state: 'success',
               log_url: `https://argocd.example.com/pr-${context.issue.number}--app2`,
             })
-            await github.repos.createDeploymentStatus({
+            await github.rest.repos.createDeploymentStatus({
               owner: context.repo.owner,
               repo: context.repo.repo,
               deployment_id: process.env.app3_id,
