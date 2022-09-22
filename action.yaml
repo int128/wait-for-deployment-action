@@ -2,9 +2,14 @@ name: typescript-action
 description: Template of TypeScript Action
 
 inputs:
-  name:
-    description: example input
+  sha:
+    description: commit SHA or ref
     required: true
+    default: ${{ github.event.pull_request.head.sha || github.sha }}
+  token:
+    description: GitHub token
+    required: true
+    default: ${{ github.token }}
 
 runs:
   using: 'node16'
