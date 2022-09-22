@@ -28,6 +28,9 @@ export const run = async (inputs: Inputs): Promise<Outputs> => {
   core.endGroup()
 
   const outputs = aggregate(deployments)
+  core.startGroup('outputs')
+  core.info(JSON.stringify(outputs, undefined, 2))
+  core.endGroup()
   return {
     ...outputs,
     summary: outputs.summary.join('\n'),
