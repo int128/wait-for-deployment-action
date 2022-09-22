@@ -39,6 +39,6 @@ test('all pending', () => {
   ).toStrictEqual<Outputs>({
     completed: false,
     success: false,
-    summary: ['- pr-2/app1 ([PENDING]()): ', '- pr-2/app2 ([PENDING]()): ', '- pr-2/app3 ([PENDING]()): '],
+    summary: ['- pr-2/app1 (pending): ', '- pr-2/app2 (pending): ', '- pr-2/app3 (pending): '],
   })
 })
