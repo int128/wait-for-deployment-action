@@ -2,6 +2,7 @@ import { DeploymentsAtCommitQuery } from './generated/graphql'
 import { DeploymentState } from './generated/graphql-types'
 
 export type Outputs = {
+  progressing: boolean
   completed: boolean
   succeeded: boolean
   summary: string[]
@@ -16,6 +17,7 @@ export const aggregate = (q: DeploymentsAtCommitQuery): Outputs => {
   }
 
   const outputs: Outputs = {
+    progressing: false,
     completed: true,
     succeeded: true,
     summary: [],
@@ -26,9 +28,19 @@ export const aggregate = (q: DeploymentsAtCommitQuery): Outputs => {
     }
 
     switch (node.state) {
-      case DeploymentState.InProgress:
       case DeploymentState.Pending:
+        outputs.completed = false
+        outputs.succeeded = false
+        outputs.summary.push(
+          `- ${node.environment} (${toLink(node.state, node.latestStatus?.logUrl)}): ${
+            node.latestStatus?.description ?? ''
+          }`
+        )
+        break
+
       case DeploymentState.Queued:
+      case DeploymentState.InProgress:
+        outputs.progressing = true
         outputs.completed = false
         outputs.succeeded = false
         outputs.summary.push(

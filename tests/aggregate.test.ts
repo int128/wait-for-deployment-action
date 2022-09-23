@@ -37,9 +37,49 @@ test('all pending', () => {
       },
     })
   ).toStrictEqual<Outputs>({
+    progressing: false,
     completed: false,
     succeeded: false,
     summary: ['- pr-2/app1 (pending): ', '- pr-2/app2 (pending): ', '- pr-2/app3 (pending): '],
+  })
+})
+
+test('progressing', () => {
+  expect(
+    aggregate({
+      rateLimit: {
+        cost: 1,
+      },
+      repository: {
+        object: {
+          __typename: 'Commit',
+          deployments: {
+            nodes: [
+              {
+                environment: 'pr-2/app1',
+                state: DeploymentState.Pending,
+                latestStatus: null,
+              },
+              {
+                environment: 'pr-2/app2',
+                state: DeploymentState.InProgress,
+                latestStatus: null,
+              },
+              {
+                environment: 'pr-2/app3',
+                state: DeploymentState.Queued,
+                latestStatus: null,
+              },
+            ],
+          },
+        },
+      },
+    })
+  ).toStrictEqual<Outputs>({
+    progressing: true,
+    completed: false,
+    succeeded: false,
+    summary: ['- pr-2/app1 (pending): ', '- pr-2/app2 (in progress): ', '- pr-2/app3 (queued): '],
   })
 })
 
@@ -87,6 +127,7 @@ test('active and destroyed', () => {
       },
     })
   ).toStrictEqual<Outputs>({
+    progressing: false,
     completed: true,
     succeeded: true,
     summary: [

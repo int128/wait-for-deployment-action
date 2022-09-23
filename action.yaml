@@ -12,6 +12,8 @@ inputs:
     default: ${{ github.token }}
 
 outputs:
+  progressing:
+    description: true if any deployment is progressing
   completed:
     description: true if all deployments are completed
   succeeded:
