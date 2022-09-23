@@ -33,10 +33,51 @@ jobs:
       - run: yarn build
       - run: yarn package
 
+      - uses: int128/deployment-action@v1
+        id: app1
+        with:
+          environment-suffix: /app1
+      - uses: int128/deployment-action@v1
+        id: app2
+        with:
+          environment-suffix: /app2
+      - uses: int128/deployment-action@v1
+        id: app3
+        with:
+          environment-suffix: /app3
       - name: e2e-test
         uses: ./
+
+      - uses: actions/github-script@v6
+        env:
+          app1_id: ${{ steps.app1.outputs.id }}
+          app2_id: ${{ steps.app2.outputs.id }}
+          app3_id: ${{ steps.app3.outputs.id }}
         with:
-          name: foo
+          script: |
+            await github.rest.repos.createDeploymentStatus({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              deployment_id: process.env.app1_id,
+              state: 'success',
+              log_url: `https://argocd.example.com/pr-${context.issue.number}--app1`,
+            })
+            await github.rest.repos.createDeploymentStatus({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              deployment_id: process.env.app2_id,
+              state: 'success',
+              log_url: `https://argocd.example.com/pr-${context.issue.number}--app2`,
+            })
+            await github.rest.repos.createDeploymentStatus({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              deployment_id: process.env.app3_id,
+              state: 'success',
+              log_url: `https://argocd.example.com/pr-${context.issue.number}--app3`,
+            })
+      - name: e2e-test
+        uses: ./
 
   generate:
     runs-on: ubuntu-latest

@@ -2,9 +2,16 @@ import * as core from '@actions/core'
 import { run } from './run'
 
 const main = async (): Promise<void> => {
-  await run({
-    name: core.getInput('name', { required: true }),
+  const outputs = await run({
+    sha: core.getInput('sha', { required: true }),
+    token: core.getInput('token', { required: true }),
   })
+  core.setOutput('completed', outputs.completed)
+  core.setOutput('success', outputs.success)
+  core.setOutput('summary', outputs.summary)
+
+  core.summary.addRaw(outputs.summary)
+  await core.summary.write()
 }
 
 main().catch((e) => core.setFailed(e instanceof Error ? e : String(e)))
