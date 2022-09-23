@@ -14,8 +14,8 @@ inputs:
 outputs:
   completed:
     description: true if all deployments are completed
-  success:
-    description: true if all deployments are success
+  succeeded:
+    description: true if all deployments are succeeded
   summary:
     description: markdown list of all deployments
 

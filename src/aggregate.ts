@@ -3,7 +3,7 @@ import { DeploymentState } from './generated/graphql-types'
 
 export type Outputs = {
   completed: boolean
-  success: boolean
+  succeeded: boolean
   summary: string[]
 }
 
@@ -17,7 +17,7 @@ export const aggregate = (q: DeploymentsAtCommitQuery): Outputs => {
 
   const outputs: Outputs = {
     completed: true,
-    success: true,
+    succeeded: true,
     summary: [],
   }
   for (const node of q.repository.object.deployments?.nodes ?? []) {
@@ -30,7 +30,7 @@ export const aggregate = (q: DeploymentsAtCommitQuery): Outputs => {
       case DeploymentState.Pending:
       case DeploymentState.Queued:
         outputs.completed = false
-        outputs.success = false
+        outputs.succeeded = false
         outputs.summary.push(
           `- ${node.environment} (${toLink(node.state, node.latestStatus?.logUrl)}): ${
             node.latestStatus?.description ?? ''
@@ -40,7 +40,7 @@ export const aggregate = (q: DeploymentsAtCommitQuery): Outputs => {
 
       case DeploymentState.Failure:
       case DeploymentState.Error:
-        outputs.success = false
+        outputs.succeeded = false
         outputs.summary.push(
           `- :x: ${node.environment} (${toLink(node.state, node.latestStatus?.logUrl)}): ${
             node.latestStatus?.description ?? ''
