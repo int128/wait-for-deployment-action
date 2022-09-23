@@ -28,7 +28,7 @@ jobs:
 
 | Name | Default | Description
 |------|----------|------------
-| `sha` | `github.event.pull_request.head.sha || github.sha` | commit SHA or ref to find deployments
+| `sha` | `github.event.pull_request.head.sha` or `github.sha` | commit SHA or ref to find deployments
 | `token` | `github.token` | GitHub token
 
 
@@ -36,6 +36,7 @@ jobs:
 
 | Name | Description
 |------|------------
+| `progressing` | true if any deployment is progressing
 | `completed` | true if all deployments are completed
 | `succeeded` | true if all deployments are succeeded
 | `summary` | markdown list of all deployments

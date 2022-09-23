@@ -6,6 +6,7 @@ const main = async (): Promise<void> => {
     sha: core.getInput('sha', { required: true }),
     token: core.getInput('token', { required: true }),
   })
+  core.setOutput('progressing', outputs.progressing)
   core.setOutput('completed', outputs.completed)
   core.setOutput('succeeded', outputs.succeeded)
   core.setOutput('summary', outputs.summary)
