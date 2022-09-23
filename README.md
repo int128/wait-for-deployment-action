@@ -20,7 +20,7 @@ jobs:
     steps:
       - uses: int128/aggregate-deployments-action@v1
         id: deployments
-      - if: steps.deployments.output.succeeded
+      - if: steps.deployments.outputs.succeeded
         run: echo application successfully deployed
 ```
 
