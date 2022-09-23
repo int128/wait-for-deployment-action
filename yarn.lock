@@ -10,7 +10,7 @@
     "@actions/http-client" "^2.0.1"
     uuid "^8.3.2"
 
-"@actions/github@^5.0.3":
+"@actions/github@5.0.3":
   version "5.0.3"
   resolved "https://registry.yarnpkg.com/@actions/github/-/github-5.0.3.tgz#b305765d6173962d113451ea324ff675aa674f35"
   integrity sha512-myjA/pdLQfhUGLtRZC/J4L1RXOG4o6aYdiEq+zr5wVVKljzbFld+xv10k1FX6IkIJtNxbAq44BdwSNpQ015P0A==
@@ -1029,7 +1029,7 @@
     "@graphql-codegen/plugin-helpers" "^2.6.2"
     tslib "~2.4.0"
 
-"@graphql-codegen/cli@^2.12.1":
+"@graphql-codegen/cli@2.12.1":
   version "2.12.1"
   resolved "https://registry.yarnpkg.com/@graphql-codegen/cli/-/cli-2.12.1.tgz#0a8533015c16cfe5626611f836321dd281a2b382"
   integrity sha512-kBYArVrIceKmNy2qZeiqoAHuNFUVRuVL3f0XX3VproXNmCGjLzcYosPmzV8+2H9mjjDU+vq5mLddAc8oVNGz9g==
@@ -1077,7 +1077,7 @@
     "@graphql-tools/utils" "^8.8.0"
     tslib "~2.4.0"
 
-"@graphql-codegen/import-types-preset@^2.2.3":
+"@graphql-codegen/import-types-preset@2.2.3":
   version "2.2.3"
   resolved "https://registry.yarnpkg.com/@graphql-codegen/import-types-preset/-/import-types-preset-2.2.3.tgz#24ac728e6b80c5315b097b6ce1cf4bcb75e7013a"
   integrity sha512-G0Fb/P+w/1aCFd89pqfLLX7VrvCICyS8pcmDWxNLmrD77z7Qxlw22ZyNeIdtAF+F3B99r5tpp7j+OAN3qP8eMA==
@@ -1108,7 +1108,7 @@
     "@graphql-tools/utils" "^8.8.0"
     tslib "~2.4.0"
 
-"@graphql-codegen/typescript-operations@^2.5.3":
+"@graphql-codegen/typescript-operations@2.5.3":
   version "2.5.3"
   resolved "https://registry.yarnpkg.com/@graphql-codegen/typescript-operations/-/typescript-operations-2.5.3.tgz#c6fd3f209e3482b86b08050685af8fa45ab14297"
   integrity sha512-s+pA+Erm0HeBb/D5cNrflwRM5KWhkiA5cbz4uA99l3fzFPveoQBPfRCBu0XAlJLP/kBDy64+o4B8Nfc7wdRtmA==
@@ -1119,7 +1119,7 @@
     auto-bind "~4.0.0"
     tslib "~2.4.0"
 
-"@graphql-codegen/typescript@^2.7.3":
+"@graphql-codegen/typescript@2.7.3", "@graphql-codegen/typescript@^2.7.3":
   version "2.7.3"
   resolved "https://registry.yarnpkg.com/@graphql-codegen/typescript/-/typescript-2.7.3.tgz#ad786a1c74e16eca8e01e7a8f28078e1c24eeb61"
   integrity sha512-EzX/acijXtbG/AwPzho2ZZWaNo00+xAbsRDP+vnT2PwQV3AYq3/5bFvjq1XfAGWbTntdmlYlIwC9hf5bI85WVA==
@@ -1745,7 +1745,7 @@
     is-plain-object "^5.0.0"
     universal-user-agent "^6.0.0"
 
-"@octokit/graphql-schema@^12.6.0":
+"@octokit/graphql-schema@12.6.0":
   version "12.6.0"
   resolved "https://registry.yarnpkg.com/@octokit/graphql-schema/-/graphql-schema-12.6.0.tgz#57dcf4912cd04df6aa164b948605aef1b4309f44"
   integrity sha512-74py5UUcDqdN96eiVozlY9K9FszwzlFXmX6Nzcdb/Y9T5BA77OxJZRHziRYdp6ywYNKNRCsiHvjf1mqzpskHSA==
@@ -3541,7 +3541,7 @@ graphql-ws@^5.4.1:
   resolved "https://registry.yarnpkg.com/graphql-ws/-/graphql-ws-5.11.2.tgz#d5e0acae8b4d4a4cf7be410a24135cfcefd7ddc0"
   integrity sha512-4EiZ3/UXYcjm+xFGP544/yW1+DVI8ZpKASFbzrV5EDTFWJp0ZvLl4Dy2fSZAzz9imKp5pZMIcjB0x/H69Pv/6w==
 
-graphql@^16.0.0, graphql@^16.6.0:
+graphql@16.6.0, graphql@^16.0.0:
   version "16.6.0"
   resolved "https://registry.yarnpkg.com/graphql/-/graphql-16.6.0.tgz#c2dcffa4649db149f6282af726c8c83f1c7c5fdb"
   integrity sha512-KPIBPDlW7NxrbT/eh4qPXz5FiFdL5UbaA0XUNz2Rp3Z3hqBSkbj0GVjwFDztsWVauZUWsbKHgMg++sk8UX0bkw==
