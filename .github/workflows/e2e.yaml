@@ -1,0 +1,30 @@
+name: e2e
+
+on:
+  deployment_status:
+
+jobs:
+  dump:
+    name: dump / ${{ github.event.deployment.environment }} / ${{ github.event.deployment_status.state }}
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/github-script@v6
+        with:
+          script: |
+            core.info(JSON.stringify(context, undefined, 2))
+
+  notify:
+    name: notify / ${{ github.event.deployment.environment }} / ${{ github.event.deployment_status.state }}
+    if: github.event.deployment_status.state == 'success'
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: int128/aggregate-deployments-action@v0
+        id: deployments
+      - if: steps.deployments.outputs.succeeded
+        uses: int128/comment-action@v1
+        with:
+          post: |
+            ## Deployed
+            ${{ steps.deployments.outputs.summary }}
