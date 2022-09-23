@@ -38,7 +38,7 @@ test('all pending', () => {
     })
   ).toStrictEqual<Outputs>({
     completed: false,
-    success: false,
+    succeeded: false,
     summary: ['- pr-2/app1 (pending): ', '- pr-2/app2 (pending): ', '- pr-2/app3 (pending): '],
   })
 })
@@ -88,7 +88,7 @@ test('active and destroyed', () => {
     })
   ).toStrictEqual<Outputs>({
     completed: true,
-    success: true,
+    succeeded: true,
     summary: [
       '- :white_check_mark: pr-727/app3 ([active](https://argocd.example.com/applications/app3)): Succeeded:\nsuccessfully synced (all tasks run)',
     ],

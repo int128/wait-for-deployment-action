@@ -20,8 +20,8 @@ jobs:
     steps:
       - uses: int128/aggregate-deployments-action@v1
         id: deployments
-      - if: steps.deployments.output.completed && steps.deployments.output.success
-        run: echo Deploy successfully completed 
+      - if: steps.deployments.output.succeeded
+        run: echo application successfully deployed
 ```
 
 ### Inputs
@@ -37,5 +37,5 @@ jobs:
 | Name | Description
 |------|------------
 | `completed` | true if all deployments are completed
-| `success` | true if all deployments are success
+| `succeeded` | true if all deployments are succeeded
 | `summary` | markdown list of all deployments

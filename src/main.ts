@@ -7,7 +7,7 @@ const main = async (): Promise<void> => {
     token: core.getInput('token', { required: true }),
   })
   core.setOutput('completed', outputs.completed)
-  core.setOutput('success', outputs.success)
+  core.setOutput('succeeded', outputs.succeeded)
   core.setOutput('summary', outputs.summary)
 
   core.summary.addRaw(outputs.summary)
