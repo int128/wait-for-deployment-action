@@ -40,7 +40,7 @@ test('all pending', () => {
     progressing: false,
     completed: false,
     succeeded: false,
-    summary: ['- pr-2/app1 (pending): ', '- pr-2/app2 (pending): ', '- pr-2/app3 (pending): '],
+    summary: ['- pr-2/app1: pending: ', '- pr-2/app2: pending: ', '- pr-2/app3: pending: '],
   })
 })
 
@@ -79,7 +79,7 @@ test('progressing', () => {
     progressing: true,
     completed: false,
     succeeded: false,
-    summary: ['- pr-2/app1 (pending): ', '- pr-2/app2 (in progress): ', '- pr-2/app3 (queued): '],
+    summary: ['- pr-2/app1: pending: ', '- pr-2/app2: :rocket: in progress: ', '- pr-2/app3: :rocket: queued: '],
   })
 })
 
@@ -131,7 +131,7 @@ test('active and destroyed', () => {
     completed: true,
     succeeded: true,
     summary: [
-      '- :white_check_mark: pr-727/app3 ([active](https://argocd.example.com/applications/app3)): Succeeded:\nsuccessfully synced (all tasks run)',
+      '- pr-727/app3: :white_check_mark: [active](https://argocd.example.com/applications/app3): Succeeded:\nsuccessfully synced (all tasks run)',
     ],
   })
 })
