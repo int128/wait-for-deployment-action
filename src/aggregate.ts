@@ -27,15 +27,13 @@ export const aggregate = (q: DeploymentsAtCommitQuery): Outputs => {
       continue
     }
 
+    const description = node.latestStatus?.description?.trim() ?? ''
+    const stateLink = toLink(node.state, node.latestStatus?.logUrl)
     switch (node.state) {
       case DeploymentState.Pending:
         outputs.completed = false
         outputs.succeeded = false
-        outputs.summary.push(
-          `- ${node.environment} (${toLink(node.state, node.latestStatus?.logUrl)}): ${
-            node.latestStatus?.description ?? ''
-          }`
-        )
+        outputs.summary.push(`- ${node.environment}: ${stateLink}: ${description}`)
         break
 
       case DeploymentState.Queued:
@@ -43,29 +41,17 @@ export const aggregate = (q: DeploymentsAtCommitQuery): Outputs => {
         outputs.progressing = true
         outputs.completed = false
         outputs.succeeded = false
-        outputs.summary.push(
-          `- ${node.environment} (${toLink(node.state, node.latestStatus?.logUrl)}): ${
-            node.latestStatus?.description ?? ''
-          }`
-        )
+        outputs.summary.push(`- ${node.environment}: :rocket: ${stateLink}: ${description}`)
         break
 
       case DeploymentState.Failure:
       case DeploymentState.Error:
         outputs.succeeded = false
-        outputs.summary.push(
-          `- :x: ${node.environment} (${toLink(node.state, node.latestStatus?.logUrl)}): ${
-            node.latestStatus?.description ?? ''
-          }`
-        )
+        outputs.summary.push(`- ${node.environment}: :x: ${stateLink}: ${description}`)
         break
 
       case DeploymentState.Active:
-        outputs.summary.push(
-          `- :white_check_mark: ${node.environment} (${toLink(node.state, node.latestStatus?.logUrl)}): ${
-            node.latestStatus?.description ?? ''
-          }`
-        )
+        outputs.summary.push(`- ${node.environment}: :white_check_mark: ${stateLink}: ${description}`)
         break
 
       default:
