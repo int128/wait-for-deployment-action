@@ -35,7 +35,7 @@ test('all pending', () => {
           },
         },
       },
-    })
+    }),
   ).toStrictEqual<Outputs>({
     progressing: false,
     completed: false,
@@ -74,7 +74,7 @@ test('progressing', () => {
           },
         },
       },
-    })
+    }),
   ).toStrictEqual<Outputs>({
     progressing: true,
     completed: false,
@@ -125,7 +125,7 @@ test('active and destroyed', () => {
       rateLimit: {
         cost: 1,
       },
-    })
+    }),
   ).toStrictEqual<Outputs>({
     progressing: false,
     completed: true,
