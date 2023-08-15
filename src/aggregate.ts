@@ -1,3 +1,4 @@
+import assert from 'assert'
 import { DeploymentsAtCommitQuery } from './generated/graphql'
 import { DeploymentState } from './generated/graphql-types'
 
@@ -9,12 +10,9 @@ export type Outputs = {
 }
 
 export const aggregate = (q: DeploymentsAtCommitQuery): Outputs => {
-  if (q.repository == null) {
-    throw new Error(`q.repository === ${String(q.repository)}`)
-  }
-  if (q.repository.object?.__typename !== 'Commit') {
-    throw new Error(`q.repository.object.__typename === ${String(q.repository.object?.__typename)}`)
-  }
+  assert(q.repository != null)
+  assert(q.repository.object != null)
+  assert(q.repository.object.__typename === 'Commit')
 
   const outputs: Outputs = {
     progressing: false,
@@ -23,9 +21,9 @@ export const aggregate = (q: DeploymentsAtCommitQuery): Outputs => {
     summary: [],
   }
   for (const node of q.repository.object.deployments?.nodes ?? []) {
-    if (node == null || node.environment == null || node.state == null) {
-      continue
-    }
+    assert(node != null)
+    assert(node.environment != null)
+    assert(node.state != null)
 
     const description = node.latestStatus?.description?.trim() ?? ''
     const stateLink = toLink(node.state, node.latestStatus?.logUrl)
