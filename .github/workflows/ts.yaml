@@ -33,22 +33,22 @@ jobs:
       - run: yarn build
       - run: yarn package
 
-      - uses: int128/deployment-action@v1.22.0
+      - uses: int128/deployment-action@26be42e8034c8d914387a117e66405129dc2f38e # v1.22.0
         id: app1
         with:
           environment-suffix: /app1
-      - uses: int128/deployment-action@v1.22.0
+      - uses: int128/deployment-action@26be42e8034c8d914387a117e66405129dc2f38e # v1.22.0
         id: app2
         with:
           environment-suffix: /app2
-      - uses: int128/deployment-action@v1.22.0
+      - uses: int128/deployment-action@26be42e8034c8d914387a117e66405129dc2f38e # v1.22.0
         id: app3
         with:
           environment-suffix: /app3
       - name: e2e-test
         uses: ./
 
-      - uses: actions/github-script@v6.4.1
+      - uses: actions/github-script@d7906e4ad0b1822421a7e6a35d5ca353c962f410 # v6.4.1
         env:
           deployment_id: ${{ steps.app1.outputs.id }}
         with:
@@ -63,7 +63,7 @@ jobs:
       - name: e2e-test
         uses: ./
 
-      - uses: actions/github-script@v6.4.1
+      - uses: actions/github-script@d7906e4ad0b1822421a7e6a35d5ca353c962f410 # v6.4.1
         env:
           deployment_id: ${{ steps.app2.outputs.id }}
         with:
@@ -78,7 +78,7 @@ jobs:
       - name: e2e-test
         uses: ./
 
-      - uses: actions/github-script@v6.4.1
+      - uses: actions/github-script@d7906e4ad0b1822421a7e6a35d5ca353c962f410 # v6.4.1
         env:
           deployment_id: ${{ steps.app3.outputs.id }}
         with:
