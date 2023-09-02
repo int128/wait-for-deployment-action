@@ -1,5 +1,5 @@
-name: typescript-action
-description: Template of TypeScript Action
+name: aggregate-deployments-action
+description: Aggregate GitHub Deployments against commit SHA
 
 inputs:
   sha:
