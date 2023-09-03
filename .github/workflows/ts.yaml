@@ -131,7 +131,7 @@ jobs:
         with:
           wait-until: completed
           wait-initial-delay-seconds: 0
-          wait-period-seconds: 2
+          wait-period-seconds: 3
 
   generate:
     runs-on: ubuntu-latest

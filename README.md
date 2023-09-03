@@ -4,7 +4,7 @@ This is an action to aggregate GitHub Deployments against the current commit.
 
 ## Getting Started
 
-### Example: notify deployment_status event
+### Example: Notify deployment_status event
 
 To notify the change of deployment status to a comment,
 
@@ -29,9 +29,9 @@ jobs:
             ${{ steps.deployments.outputs.summary }}
 ```
 
-### Example: Wait for the deployment status
+### Example: Wait for the deployments
 
-To wait until the all deployment statuses are completed,
+To wait until the all deployments are completed,
 
 ```yaml
 name: wait-for-deployment-completed
@@ -59,11 +59,13 @@ jobs:
 
 ### Inputs
 
-| Name         | Default                                              | Description                           |
-| ------------ | ---------------------------------------------------- | ------------------------------------- |
-| `wait-until` | (optional)                                           | If set, wait for the status           |
-| `sha`        | `github.event.pull_request.head.sha` or `github.sha` | Commit SHA or ref to find deployments |
-| `token`      | `github.token`                                       | GitHub token                          |
+| Name                         | Default                                              | Description                           |
+| ---------------------------- | ---------------------------------------------------- | ------------------------------------- |
+| `wait-until`                 | (optional)                                           | If set, wait for the status           |
+| `wait-initial-delay-seconds` | 10                                                   | Initial delay before polling          |
+| `wait-period-seconds`        | 15                                                   | Polling period                        |
+| `sha`                        | `github.event.pull_request.head.sha` or `github.sha` | Commit SHA or ref to find deployments |
+| `token`                      | `github.token`                                       | GitHub token                          |
 
 ### Outputs
 
