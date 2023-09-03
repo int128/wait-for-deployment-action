@@ -4,9 +4,9 @@ This is an action to aggregate GitHub Deployments against the current commit.
 
 ## Getting Started
 
-### Example: Notify deployment_status event
+### Example: notify deployment_status event
 
-To notify the change of deployment status to a comment,
+To notify the change of deployment status to a comment in the pull request,
 
 ```yaml
 name: deployment-status
@@ -29,9 +29,9 @@ jobs:
             ${{ steps.deployments.outputs.summary }}
 ```
 
-### Example: Wait for the deployments
+### Example: wait for the deployments
 
-To wait until the all deployments are completed,
+To wait until all deployments are completed,
 
 ```yaml
 name: wait-for-deployment-completed
