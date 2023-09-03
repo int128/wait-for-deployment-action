@@ -1,5 +1,5 @@
 import assert from 'assert'
-import { DeploymentsAtCommitQuery } from './generated/graphql'
+import { ListDeploymentsQuery } from './generated/graphql'
 import { DeploymentState } from './generated/graphql-types'
 
 export type Outputs = {
@@ -9,7 +9,7 @@ export type Outputs = {
   summary: string[]
 }
 
-export const aggregate = (q: DeploymentsAtCommitQuery): Outputs => {
+export const aggregate = (q: ListDeploymentsQuery): Outputs => {
   assert(q.repository != null)
   assert(q.repository.object != null)
   assert.strictEqual(q.repository.object.__typename, 'Commit')
