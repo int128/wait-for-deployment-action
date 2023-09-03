@@ -1,9 +1,11 @@
 import * as core from '@actions/core'
 import * as github from '@actions/github'
 import { aggregate } from './aggregate'
-import { getDeploymentsAtCommit } from './queries/deployments'
+import { listDeployments } from './queries/listDeployments'
 
 type Inputs = {
+  owner: string
+  repo: string
   sha: string
   token: string
 }
@@ -18,22 +20,21 @@ type Outputs = {
 export const run = async (inputs: Inputs): Promise<Outputs> => {
   const octokit = github.getOctokit(inputs.token)
 
-  core.info(`Get deployments at ${inputs.sha}`)
-  const deployments = await getDeploymentsAtCommit(octokit, {
-    owner: github.context.repo.owner,
-    name: github.context.repo.repo,
+  core.startGroup(`listDeployments(sha: ${inputs.sha})`)
+  const deployments = await listDeployments(octokit, {
+    owner: inputs.owner,
+    name: inputs.repo,
     expression: inputs.sha,
   })
-  core.startGroup('getDeploymentsAtCommit')
   core.info(JSON.stringify(deployments, undefined, 2))
   core.endGroup()
 
   const outputs = aggregate(deployments)
-  core.startGroup('outputs')
-  core.info(JSON.stringify(outputs, undefined, 2))
-  core.endGroup()
+  core.info(`outputs = ${JSON.stringify(outputs, undefined, 2)}`)
+  const summary = outputs.summary.join('\n')
+  core.summary.addRaw(summary)
   return {
     ...outputs,
-    summary: outputs.summary.join('\n'),
+    summary,
   }
 }

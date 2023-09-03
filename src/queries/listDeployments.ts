@@ -1,10 +1,10 @@
 import { GitHub } from '@actions/github/lib/utils'
-import { DeploymentsAtCommitQuery, DeploymentsAtCommitQueryVariables } from '../generated/graphql'
+import { ListDeploymentsQuery, ListDeploymentsQueryVariables } from '../generated/graphql'
 
 type Octokit = InstanceType<typeof GitHub>
 
 const query = /* GraphQL */ `
-  query deploymentsAtCommit($owner: String!, $name: String!, $expression: String!) {
+  query listDeployments($owner: String!, $name: String!, $expression: String!) {
     rateLimit {
       cost
     }
@@ -29,7 +29,7 @@ const query = /* GraphQL */ `
   }
 `
 
-export const getDeploymentsAtCommit = async (
+export const listDeployments = async (
   o: Octokit,
-  v: DeploymentsAtCommitQueryVariables
-): Promise<DeploymentsAtCommitQuery> => await o.graphql(query, v)
+  v: ListDeploymentsQueryVariables
+): Promise<ListDeploymentsQuery> => await o.graphql(query, v)
