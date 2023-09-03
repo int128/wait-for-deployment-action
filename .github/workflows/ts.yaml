@@ -31,19 +31,14 @@ jobs:
       - run: yarn
       - run: yarn test
 
-  e2e-test:
+  create-deployments:
     runs-on: ubuntu-latest
     timeout-minutes: 10
+    outputs:
+      app1: ${{ steps.app1.outputs.id }}
+      app2: ${{ steps.app2.outputs.id }}
+      app3: ${{ steps.app3.outputs.id }}
     steps:
-      - uses: actions/checkout@f43a0e5ff2bd294095638e18286ca9a3d1956744 # v3.6.0
-      - uses: actions/setup-node@5e21ff4d9bc1a8cf6de233a3057d20ec6b3fb69d # v3.8.1
-        with:
-          node-version: 16
-          cache: yarn
-      - run: yarn
-      - run: yarn build
-      - run: yarn package
-
       - uses: int128/deployment-action@26be42e8034c8d914387a117e66405129dc2f38e # v1.22.0
         id: app1
         with:
@@ -56,12 +51,26 @@ jobs:
         id: app3
         with:
           environment-suffix: /app3
+
+  e2e-test:
+    needs: create-deployments
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@f43a0e5ff2bd294095638e18286ca9a3d1956744 # v3.6.0
+      - uses: actions/setup-node@5e21ff4d9bc1a8cf6de233a3057d20ec6b3fb69d # v3.8.1
+        with:
+          node-version: 16
+          cache: yarn
+      - run: yarn
+      - run: yarn build
+      - run: yarn package
       - name: Run int128/aggregate-deployments-action
         uses: ./
 
       - uses: actions/github-script@d7906e4ad0b1822421a7e6a35d5ca353c962f410 # v6.4.1
         env:
-          deployment_id: ${{ steps.app1.outputs.id }}
+          deployment_id: ${{ needs.create-deployments.outputs.app1 }}
         with:
           script: |
             await github.rest.repos.createDeploymentStatus({
@@ -76,7 +85,7 @@ jobs:
 
       - uses: actions/github-script@d7906e4ad0b1822421a7e6a35d5ca353c962f410 # v6.4.1
         env:
-          deployment_id: ${{ steps.app2.outputs.id }}
+          deployment_id: ${{ needs.create-deployments.outputs.app2 }}
         with:
           script: |
             await github.rest.repos.createDeploymentStatus({
@@ -91,7 +100,7 @@ jobs:
 
       - uses: actions/github-script@d7906e4ad0b1822421a7e6a35d5ca353c962f410 # v6.4.1
         env:
-          deployment_id: ${{ steps.app3.outputs.id }}
+          deployment_id: ${{ needs.create-deployments.outputs.app3 }}
         with:
           script: |
             await github.rest.repos.createDeploymentStatus({
@@ -105,6 +114,7 @@ jobs:
         uses: ./
 
   e2e-test-wait:
+    needs: create-deployments
     runs-on: ubuntu-latest
     timeout-minutes: 10
     steps:
@@ -121,6 +131,7 @@ jobs:
         with:
           wait-until: completed
           wait-initial-delay-seconds: 0
+          wait-period-seconds: 2
 
   generate:
     runs-on: ubuntu-latest
