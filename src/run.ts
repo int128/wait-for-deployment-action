@@ -20,22 +20,21 @@ type Outputs = {
 export const run = async (inputs: Inputs): Promise<Outputs> => {
   const octokit = github.getOctokit(inputs.token)
 
-  core.info(`Get deployments at ${inputs.sha}`)
+  core.startGroup(`listDeployments(sha: ${inputs.sha})`)
   const deployments = await listDeployments(octokit, {
     owner: inputs.owner,
     name: inputs.repo,
     expression: inputs.sha,
   })
-  core.startGroup(`listDeployments(sha: ${inputs.sha})`)
   core.info(JSON.stringify(deployments, undefined, 2))
   core.endGroup()
 
   const outputs = aggregate(deployments)
-  core.startGroup('outputs')
-  core.info(JSON.stringify(outputs, undefined, 2))
-  core.endGroup()
+  core.info(`outputs = ${JSON.stringify(outputs, undefined, 2)}`)
+  const summary = outputs.summary.join('\n')
+  core.summary.addRaw(summary)
   return {
     ...outputs,
-    summary: outputs.summary.join('\n'),
+    summary,
   }
 }

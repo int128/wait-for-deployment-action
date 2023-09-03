@@ -13,8 +13,6 @@ const main = async (): Promise<void> => {
   core.setOutput('completed', outputs.completed)
   core.setOutput('succeeded', outputs.succeeded)
   core.setOutput('summary', outputs.summary)
-
-  core.summary.addRaw(outputs.summary)
   await core.summary.write()
 }
 
