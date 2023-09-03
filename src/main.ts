@@ -4,6 +4,9 @@ import { run } from './run'
 
 const main = async (): Promise<void> => {
   const outputs = await run({
+    waitUntil: waitUntilOf(core.getInput('wait-until')),
+    waitInitialDelaySeconds: Number.parseInt(core.getInput('wait-initial-delay-seconds', { required: true })),
+    waitPeriodSeconds: Number.parseInt(core.getInput('wait-period-seconds', { required: true })),
     owner: github.context.repo.owner,
     repo: github.context.repo.repo,
     sha: core.getInput('sha', { required: true }),
@@ -14,6 +17,16 @@ const main = async (): Promise<void> => {
   core.setOutput('succeeded', outputs.succeeded)
   core.setOutput('summary', outputs.summary)
   await core.summary.write()
+}
+
+const waitUntilOf = (s: string): 'completed' | 'succeeded' | undefined => {
+  if (s === '') {
+    return
+  }
+  if (s === 'completed' || s === 'succeeded') {
+    return s
+  }
+  throw new Error(`wait-until must be either completed or succeeded`)
 }
 
 main().catch((e: Error) => {

@@ -2,10 +2,11 @@
 
 This is an action to aggregate GitHub Deployments against the current commit.
 
-
 ## Getting Started
 
-To run this action, create a workflow as follows:
+### Example: notify deployment_status event
+
+To notify the change of deployment status to a comment,
 
 ```yaml
 name: deployment-status
@@ -14,29 +15,61 @@ on:
   deployment_status:
 
 jobs:
-  aggregate:
-    if: github.event.deployment_status.state == 'success'
+  notify:
+    if: github.event.deployment_status.state == 'success' || github.event.deployment_status.state == 'failure'
     runs-on: ubuntu-latest
     steps:
       - uses: int128/aggregate-deployments-action@v1
         id: deployments
-      - if: steps.deployments.outputs.succeeded
-        run: echo application successfully deployed
+      - uses: int128/comment-action@v1
+        with:
+          update-if-exists: replace
+          post: |
+            ## Deploy completed
+            ${{ steps.deployments.outputs.summary }}
 ```
+
+### Example: Wait for the deployment status
+
+To wait until the all deployment statuses are completed,
+
+```yaml
+name: wait-for-deployment-completed
+
+on:
+  pull_request:
+
+jobs:
+  notify:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - uses: int128/aggregate-deployments-action@v1
+        id: deployments
+        with:
+          wait-until: succeeded
+      - uses: int128/comment-action@v1
+        with:
+          post: |
+            ## Deploy completed
+            ${{ steps.deployments.outputs.summary }}
+```
+
+## Specification
 
 ### Inputs
 
-| Name | Default | Description
-|------|----------|------------
-| `sha` | `github.event.pull_request.head.sha` or `github.sha` | commit SHA or ref to find deployments
-| `token` | `github.token` | GitHub token
-
+| Name         | Default                                              | Description                           |
+| ------------ | ---------------------------------------------------- | ------------------------------------- |
+| `wait-until` | (optional)                                           | If set, wait for the status           |
+| `sha`        | `github.event.pull_request.head.sha` or `github.sha` | Commit SHA or ref to find deployments |
+| `token`      | `github.token`                                       | GitHub token                          |
 
 ### Outputs
 
-| Name | Description
-|------|------------
-| `progressing` | true if any deployment is progressing
-| `completed` | true if all deployments are completed
-| `succeeded` | true if all deployments are succeeded
-| `summary` | markdown list of all deployments
+| Name          | Description                           |
+| ------------- | ------------------------------------- |
+| `progressing` | true if any deployment is progressing |
+| `completed`   | true if all deployments are completed |
+| `succeeded`   | true if all deployments are succeeded |
+| `summary`     | markdown list of all deployments      |

@@ -2,8 +2,19 @@ name: aggregate-deployments-action
 description: Aggregate GitHub Deployments against commit SHA
 
 inputs:
+  wait-until:
+    description: If set, wait for the status either completed or succeeded
+    required: false
+  wait-initial-delay-seconds:
+    description: Initial delay before polling in seconds
+    required: true
+    default: '10'
+  wait-period-seconds:
+    description: Polling period in seconds
+    required: true
+    default: '15'
   sha:
-    description: commit SHA or ref
+    description: Commit SHA or ref
     required: true
     default: ${{ github.event.pull_request.head.sha || github.sha }}
   token:
