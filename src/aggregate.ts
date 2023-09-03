@@ -16,50 +16,61 @@ export const aggregate = (q: ListDeploymentsQuery): Outputs => {
   assert(q.repository.object.deployments != null)
   assert(q.repository.object.deployments.nodes != null)
 
-  const outputs: Outputs = {
-    progressing: false,
-    completed: true,
-    succeeded: true,
-    summary: [],
-  }
-  for (const node of q.repository.object.deployments.nodes) {
+  const nodes = q.repository.object.deployments.nodes.map((node) => {
     assert(node != null)
-    assert(node.environment != null)
-    assert(node.state != null)
+    return node
+  })
 
-    const description = node.latestStatus?.description?.trim() ?? ''
-    const stateLink = toLink(node.state, node.latestStatus?.logUrl)
-    switch (node.state) {
-      case DeploymentState.Pending:
-        outputs.completed = false
-        outputs.succeeded = false
-        outputs.summary.push(`- ${node.environment}: ${stateLink}: ${description}`)
-        break
+  const progressing = nodes.some(
+    (node) => node.state === DeploymentState.Queued || node.state === DeploymentState.InProgress,
+  )
+  const completed = !nodes.some(
+    (node) =>
+      node.state === DeploymentState.Pending ||
+      node.state === DeploymentState.Waiting ||
+      node.state === DeploymentState.Queued ||
+      node.state === DeploymentState.InProgress,
+  )
+  const succeeded = !nodes.some(
+    (node) =>
+      node.state === DeploymentState.Pending ||
+      node.state === DeploymentState.Waiting ||
+      node.state === DeploymentState.Queued ||
+      node.state === DeploymentState.InProgress ||
+      node.state === DeploymentState.Failure ||
+      node.state === DeploymentState.Error,
+  )
 
-      case DeploymentState.Queued:
-      case DeploymentState.InProgress:
-        outputs.progressing = true
-        outputs.completed = false
-        outputs.succeeded = false
-        outputs.summary.push(`- ${node.environment}: :rocket: ${stateLink}: ${description}`)
-        break
+  const summary = nodes
+    .map((node) => {
+      assert(node.environment != null)
+      assert(node.state != null)
+      const description = node.latestStatus?.description?.trim() ?? ''
+      const stateLink = toLink(node.state, node.latestStatus?.logUrl)
+      switch (node.state) {
+        case DeploymentState.Pending:
+          return `- ${node.environment}: ${stateLink}: ${description}`
 
-      case DeploymentState.Failure:
-      case DeploymentState.Error:
-        outputs.succeeded = false
-        outputs.summary.push(`- ${node.environment}: :x: ${stateLink}: ${description}`)
-        break
+        case DeploymentState.Queued:
+        case DeploymentState.InProgress:
+          return `- ${node.environment}: :rocket: ${stateLink}: ${description}`
 
-      case DeploymentState.Active:
-        outputs.summary.push(`- ${node.environment}: :white_check_mark: ${stateLink}: ${description}`)
-        break
+        case DeploymentState.Failure:
+        case DeploymentState.Error:
+          return `- ${node.environment}: :x: ${stateLink}: ${description}`
 
-      default:
-        break
-    }
+        case DeploymentState.Active:
+          return `- ${node.environment}: :white_check_mark: ${stateLink}: ${description}`
+      }
+    })
+    .filter<string>((s): s is string => s !== undefined)
+
+  return {
+    progressing,
+    completed,
+    succeeded,
+    summary,
   }
-
-  return outputs
 }
 
 const toLink = (state: DeploymentState, url: string | null | undefined) => {
