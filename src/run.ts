@@ -4,6 +4,8 @@ import { aggregate } from './aggregate'
 import { getDeploymentsAtCommit } from './queries/deployments'
 
 type Inputs = {
+  owner: string
+  repo: string
   sha: string
   token: string
 }
@@ -20,8 +22,8 @@ export const run = async (inputs: Inputs): Promise<Outputs> => {
 
   core.info(`Get deployments at ${inputs.sha}`)
   const deployments = await getDeploymentsAtCommit(octokit, {
-    owner: github.context.repo.owner,
-    name: github.context.repo.repo,
+    owner: inputs.owner,
+    name: inputs.repo,
     expression: inputs.sha,
   })
   core.startGroup('getDeploymentsAtCommit')

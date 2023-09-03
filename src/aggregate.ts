@@ -12,7 +12,9 @@ export type Outputs = {
 export const aggregate = (q: DeploymentsAtCommitQuery): Outputs => {
   assert(q.repository != null)
   assert(q.repository.object != null)
-  assert(q.repository.object.__typename === 'Commit')
+  assert.strictEqual(q.repository.object.__typename, 'Commit')
+  assert(q.repository.object.deployments != null)
+  assert(q.repository.object.deployments.nodes != null)
 
   const outputs: Outputs = {
     progressing: false,
@@ -20,7 +22,7 @@ export const aggregate = (q: DeploymentsAtCommitQuery): Outputs => {
     succeeded: true,
     summary: [],
   }
-  for (const node of q.repository.object.deployments?.nodes ?? []) {
+  for (const node of q.repository.object.deployments.nodes) {
     assert(node != null)
     assert(node.environment != null)
     assert(node.state != null)
