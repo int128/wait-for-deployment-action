@@ -4,6 +4,7 @@ import { DeploymentState } from './generated/graphql-types'
 
 export type Outputs = {
   progressing: boolean
+  failed: boolean
   completed: boolean
   succeeded: boolean
   summary: string[]
@@ -24,6 +25,7 @@ export const aggregate = (q: ListDeploymentsQuery): Outputs => {
   const progressing = nodes.some(
     (node) => node.state === DeploymentState.Queued || node.state === DeploymentState.InProgress,
   )
+  const failed = nodes.some((node) => node.state === DeploymentState.Failure || node.state === DeploymentState.Error)
   const completed = !nodes.some(
     (node) =>
       node.state === DeploymentState.Pending ||
@@ -67,6 +69,7 @@ export const aggregate = (q: ListDeploymentsQuery): Outputs => {
 
   return {
     progressing,
+    failed,
     completed,
     succeeded,
     summary,
