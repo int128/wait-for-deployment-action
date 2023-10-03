@@ -13,6 +13,7 @@ const main = async (): Promise<void> => {
     token: core.getInput('token', { required: true }),
   })
   core.setOutput('progressing', outputs.progressing)
+  core.setOutput('failed', outputs.failed)
   core.setOutput('completed', outputs.completed)
   core.setOutput('succeeded', outputs.succeeded)
   core.setOutput('summary', outputs.summary)

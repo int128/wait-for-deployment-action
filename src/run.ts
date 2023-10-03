@@ -18,6 +18,7 @@ type Inputs = {
 
 type Outputs = {
   progressing: boolean
+  failed: boolean
   completed: boolean
   succeeded: boolean
   summary: string
@@ -39,8 +40,13 @@ const waitForDeployments = async (inputs: Inputs): Promise<Outputs> => {
   const octokit = github.getOctokit(inputs.token)
   for (;;) {
     const outputs = await getStatus(octokit, inputs)
-    if (inputs.waitUntil === 'succeeded' && outputs.succeeded) {
-      return outputs
+    if (inputs.waitUntil === 'succeeded') {
+      if (outputs.succeeded) {
+        return outputs
+      }
+      if (outputs.failed) {
+        throw new Error(`deployment was failed:\n${outputs.summary}`)
+      }
     }
     if (inputs.waitUntil === 'completed' && outputs.completed) {
       return outputs

@@ -67,11 +67,19 @@ jobs:
 | `sha`                        | `github.event.pull_request.head.sha` or `github.sha` | Commit SHA or ref to find deployments |
 | `token`                      | `github.token`                                       | GitHub token                          |
 
+If `wait-until` is set to `succeeded`,
+
+- It exits successfully when **all** deployments are succeeded
+- It exits with an error when **any** deployment is failed
+
+If `wait-until` is set to `completed`, it exits when all deployments are completed.
+
 ### Outputs
 
 | Name          | Description                           |
 | ------------- | ------------------------------------- |
 | `progressing` | true if any deployment is progressing |
+| `failed`      | true if any deployment is failed      |
 | `completed`   | true if all deployments are completed |
 | `succeeded`   | true if all deployments are succeeded |
 | `summary`     | markdown list of all deployments      |

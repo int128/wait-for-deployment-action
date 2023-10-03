@@ -25,6 +25,8 @@ inputs:
 outputs:
   progressing:
     description: true if any deployment is progressing
+  failed:
+    description: true if any deployment is failed
   completed:
     description: true if all deployments are completed
   succeeded:
