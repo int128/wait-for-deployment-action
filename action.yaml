@@ -35,5 +35,5 @@ outputs:
     description: markdown list of all deployments
 
 runs:
-  using: 'node16'
+  using: 'node20'
   main: 'dist/index.js'
