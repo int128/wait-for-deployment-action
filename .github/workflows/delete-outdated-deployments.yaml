@@ -12,4 +12,4 @@ jobs:
     runs-on: ubuntu-latest
     timeout-minutes: 10
     steps:
-      - uses: int128/delete-deployments-action@71c333c480b4bb884fa2ec56a3eef8fe1aeafb86 # v1.3.0
+      - uses: int128/delete-deployments-action@c96c8b518eddcfe68beb258c561ca549a09b4a6c # v1.4.0
