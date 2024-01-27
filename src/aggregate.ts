@@ -7,7 +7,7 @@ export type Outputs = {
   failed: boolean
   completed: boolean
   succeeded: boolean
-  summary: string[]
+  summary: string
 }
 
 export const aggregate = (q: ListDeploymentsQuery): Outputs => {
@@ -72,7 +72,7 @@ export const aggregate = (q: ListDeploymentsQuery): Outputs => {
     failed,
     completed,
     succeeded,
-    summary,
+    summary: summary.join('\n'),
   }
 }
 
