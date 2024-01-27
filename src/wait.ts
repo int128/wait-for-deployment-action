@@ -1,4 +1,5 @@
 import * as core from '@actions/core'
+import * as github from '@actions/github'
 import { GitHub } from '@actions/github/lib/utils'
 import { listDeployments } from './queries/listDeployments'
 import { aggregate } from './aggregate'
@@ -23,6 +24,13 @@ type Outputs = {
 }
 
 export const waitForDeployments = async (octokit: Octokit, inputs: Inputs): Promise<Outputs> => {
+  const { data: comment } = await octokit.rest.issues.createComment({
+    owner: inputs.owner,
+    repo: inputs.repo,
+    issue_number: github.context.issue.number, // TODO
+    body: `Deploying the commit ${inputs.sha}`,
+  })
+
   core.info(`Waiting for initial delay ${inputs.waitInitialDelaySeconds}s`)
   await sleep(inputs.waitInitialDelaySeconds * 1000)
 
@@ -34,6 +42,13 @@ export const waitForDeployments = async (octokit: Octokit, inputs: Inputs): Prom
       expression: inputs.sha,
     })
     const outputs = aggregate(deployments)
+
+    await octokit.rest.issues.updateComment({
+      owner: inputs.owner,
+      repo: inputs.repo,
+      comment_id: comment.id,
+      body: `## Deployment summary\n${outputs.summary}`,
+    })
 
     if (inputs.waitUntil === 'succeeded') {
       if (outputs.succeeded) {
