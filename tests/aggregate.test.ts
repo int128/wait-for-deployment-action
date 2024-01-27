@@ -41,7 +41,7 @@ test('all pending', () => {
     failed: false,
     completed: false,
     succeeded: false,
-    summary: ['- pr-2/app1: pending: ', '- pr-2/app2: pending: ', '- pr-2/app3: pending: '],
+    summary: ['- pr-2/app1: pending: ', '- pr-2/app2: pending: ', '- pr-2/app3: pending: '].join('\n'),
   })
 })
 
@@ -81,7 +81,9 @@ test('progressing', () => {
     failed: false,
     completed: false,
     succeeded: false,
-    summary: ['- pr-2/app1: pending: ', '- pr-2/app2: :rocket: in progress: ', '- pr-2/app3: :rocket: queued: '],
+    summary: ['- pr-2/app1: pending: ', '- pr-2/app2: :rocket: in progress: ', '- pr-2/app3: :rocket: queued: '].join(
+      '\n',
+    ),
   })
 })
 
@@ -121,7 +123,7 @@ test('any failed', () => {
     failed: true,
     completed: false,
     succeeded: false,
-    summary: ['- pr-2/app1: pending: ', '- pr-2/app2: :rocket: in progress: ', '- pr-2/app3: :x: failure: '],
+    summary: ['- pr-2/app1: pending: ', '- pr-2/app2: :rocket: in progress: ', '- pr-2/app3: :x: failure: '].join('\n'),
   })
 })
 
@@ -175,6 +177,6 @@ test('active and destroyed', () => {
     succeeded: true,
     summary: [
       '- pr-727/app3: :white_check_mark: [active](https://argocd.example.com/applications/app3): Succeeded:\nsuccessfully synced (all tasks run)',
-    ],
+    ].join('\n'),
   })
 })
