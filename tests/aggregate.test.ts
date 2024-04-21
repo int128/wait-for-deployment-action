@@ -1,5 +1,5 @@
-import { aggregate, Outputs } from '../src/aggregate'
-import { DeploymentState } from '../src/generated/graphql-types'
+import { aggregate, Outputs } from '../src/aggregate.js'
+import { DeploymentState } from '../src/generated/graphql-types.js'
 
 test('invalid query', () => {
   expect(() => aggregate({})).toThrow()

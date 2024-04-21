@@ -1,9 +1,9 @@
 import * as core from '@actions/core'
-import { GitHub } from '@actions/github/lib/utils'
-import { listDeployments } from './queries/listDeployments'
-import { aggregate } from './aggregate'
+import * as github from '@actions/github'
+import { listDeployments } from './queries/listDeployments.js'
+import { aggregate } from './aggregate.js'
 
-type Octokit = InstanceType<typeof GitHub>
+type Octokit = ReturnType<typeof github.getOctokit>
 
 type Inputs = {
   waitUntil: 'completed' | 'succeeded' | undefined

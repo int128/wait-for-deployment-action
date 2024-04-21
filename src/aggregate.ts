@@ -1,6 +1,6 @@
 import assert from 'assert'
-import { ListDeploymentsQuery } from './generated/graphql'
-import { DeploymentState } from './generated/graphql-types'
+import { ListDeploymentsQuery } from './generated/graphql.js'
+import { DeploymentState } from './generated/graphql-types.js'
 
 export type Outputs = {
   progressing: boolean
