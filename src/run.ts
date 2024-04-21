@@ -1,7 +1,7 @@
 import * as github from '@actions/github'
-import { aggregate } from './aggregate'
-import { listDeployments } from './queries/listDeployments'
-import { waitForDeployments } from './wait'
+import { aggregate } from './aggregate.js'
+import { listDeployments } from './queries/listDeployments.js'
+import { waitForDeployments } from './wait.js'
 
 type Inputs = {
   waitUntil: 'completed' | 'succeeded' | undefined
