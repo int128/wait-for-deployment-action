@@ -25,20 +25,14 @@ export const aggregate = (q: ListDeploymentsQuery): Outputs => {
   const progressing = nodes.some(
     (node) => node.state === DeploymentState.Queued || node.state === DeploymentState.InProgress,
   )
-  const failed = nodes.some((node) => node.state === DeploymentState.Failure || node.state === DeploymentState.Error)
-  const completed = !nodes.some(
-    (node) =>
-      node.state === DeploymentState.Pending ||
-      node.state === DeploymentState.Waiting ||
-      node.state === DeploymentState.Queued ||
-      node.state === DeploymentState.InProgress,
+  const succeeded = nodes.every(
+    (node) => node.state === DeploymentState.Active || node.state === DeploymentState.Success,
   )
-  const succeeded = !nodes.some(
+  const failed = nodes.some((node) => node.state === DeploymentState.Failure || node.state === DeploymentState.Error)
+  const completed = nodes.every(
     (node) =>
-      node.state === DeploymentState.Pending ||
-      node.state === DeploymentState.Waiting ||
-      node.state === DeploymentState.Queued ||
-      node.state === DeploymentState.InProgress ||
+      node.state === DeploymentState.Active ||
+      node.state === DeploymentState.Success ||
       node.state === DeploymentState.Failure ||
       node.state === DeploymentState.Error,
   )
@@ -50,9 +44,6 @@ export const aggregate = (q: ListDeploymentsQuery): Outputs => {
       const description = node.latestStatus?.description?.trim() ?? ''
       const stateLink = toLink(node.state, node.latestStatus?.logUrl)
       switch (node.state) {
-        case DeploymentState.Pending:
-          return `- ${node.environment}: ${stateLink}: ${description}`
-
         case DeploymentState.Queued:
         case DeploymentState.InProgress:
           return `- ${node.environment}: :rocket: ${stateLink}: ${description}`
@@ -62,7 +53,11 @@ export const aggregate = (q: ListDeploymentsQuery): Outputs => {
           return `- ${node.environment}: :x: ${stateLink}: ${description}`
 
         case DeploymentState.Active:
+        case DeploymentState.Success:
           return `- ${node.environment}: :white_check_mark: ${stateLink}: ${description}`
+
+        default:
+          return `- ${node.environment}: ${stateLink}: ${description}`
       }
     })
     .filter<string>((s): s is string => s !== undefined)

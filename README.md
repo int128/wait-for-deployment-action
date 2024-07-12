@@ -57,6 +57,12 @@ jobs:
 
 ## Specification
 
+This action determines the status as follows:
+
+- If a deployment status is `queued` or `in_progress`, this action considers it as progressing.
+- If a deployment status is `active` or `success`, this action considers it as succeeded and completed.
+- If a deployment status is `failure` or `error`, this action considers it as failed and completed.
+
 ### Inputs
 
 | Name                         | Default                                              | Description                           |
@@ -79,7 +85,7 @@ If `wait-until` is set to `completed`, it exits when all deployments are complet
 | Name          | Description                           |
 | ------------- | ------------------------------------- |
 | `progressing` | true if any deployment is progressing |
+| `succeeded`   | true if all deployments are succeeded |
 | `failed`      | true if any deployment is failed      |
 | `completed`   | true if all deployments are completed |
-| `succeeded`   | true if all deployments are succeeded |
 | `summary`     | markdown list of all deployments      |

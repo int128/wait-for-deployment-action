@@ -127,7 +127,7 @@ test('any failed', () => {
   })
 })
 
-test('active and destroyed', () => {
+test('all active', () => {
   expect(
     aggregate({
       repository: {
@@ -137,19 +137,10 @@ test('active and destroyed', () => {
             nodes: [
               {
                 environment: 'pr-727/app1',
-                state: DeploymentState.Destroyed,
+                state: DeploymentState.Active,
                 latestStatus: {
-                  description: 'Missing:\n',
+                  description: 'Succeeded:\nsuccessfully synced (all tasks run)',
                   logUrl: 'https://argocd.example.com/applications/app1',
-                  environmentUrl: null,
-                },
-              },
-              {
-                environment: 'pr-727/app2',
-                state: DeploymentState.Destroyed,
-                latestStatus: {
-                  description: 'Missing:\n',
-                  logUrl: 'https://argocd.example.com/applications/app2',
                   environmentUrl: null,
                 },
               },
@@ -176,6 +167,7 @@ test('active and destroyed', () => {
     completed: true,
     succeeded: true,
     summary: [
+      '- pr-727/app1: :white_check_mark: [active](https://argocd.example.com/applications/app1): Succeeded:\nsuccessfully synced (all tasks run)',
       '- pr-727/app3: :white_check_mark: [active](https://argocd.example.com/applications/app3): Succeeded:\nsuccessfully synced (all tasks run)',
     ].join('\n'),
   })
