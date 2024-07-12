@@ -16,9 +16,9 @@ type Inputs = {
 
 type Outputs = {
   progressing: boolean
+  succeeded: boolean
   failed: boolean
   completed: boolean
-  succeeded: boolean
   summary: string
 }
 
