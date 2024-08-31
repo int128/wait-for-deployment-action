@@ -1,4 +1,4 @@
-# aggregate-deployments-action [![ts](https://github.com/int128/aggregate-deployments-action/actions/workflows/ts.yaml/badge.svg)](https://github.com/int128/aggregate-deployments-action/actions/workflows/ts.yaml)
+# wait-for-deployment-action [![ts](https://github.com/int128/wait-for-deployment-action/actions/workflows/ts.yaml/badge.svg)](https://github.com/int128/wait-for-deployment-action/actions/workflows/ts.yaml)
 
 This is an action to aggregate GitHub Deployments against the current commit.
 
@@ -19,7 +19,7 @@ jobs:
     if: github.event.deployment_status.state == 'success' || github.event.deployment_status.state == 'failure'
     runs-on: ubuntu-latest
     steps:
-      - uses: int128/aggregate-deployments-action@v1
+      - uses: int128/wait-for-deployment-action@v1
         id: deployments
       - uses: int128/comment-action@v1
         with:
@@ -44,7 +44,7 @@ jobs:
     runs-on: ubuntu-latest
     timeout-minutes: 30
     steps:
-      - uses: int128/aggregate-deployments-action@v1
+      - uses: int128/wait-for-deployment-action@v1
         id: deployments
         with:
           wait-until: succeeded

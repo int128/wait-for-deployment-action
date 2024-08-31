@@ -1,4 +1,4 @@
-name: aggregate-deployments-action
+name: wait-for-deployment-action
 description: Aggregate GitHub Deployments against commit SHA
 
 inputs:
