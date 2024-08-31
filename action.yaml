@@ -1,5 +1,5 @@
 name: wait-for-deployment-action
-description: Aggregate GitHub Deployments against commit SHA
+description: Wait for GitHub Deployment
 
 inputs:
   until:
