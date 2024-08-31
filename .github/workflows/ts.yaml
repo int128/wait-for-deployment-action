@@ -61,16 +61,7 @@ jobs:
     runs-on: ubuntu-latest
     timeout-minutes: 10
     steps:
-      - uses: actions/checkout@692973e3d937129bcbf40652eb9f2f61becf3332 # v4.1.7
-      - uses: actions/setup-node@1e60f620b9541d16bece96c5465dc8ee9832be0b # v4.0.3
-        with:
-          node-version: 20
-      - run: corepack enable pnpm
-      - run: pnpm i
-      - run: pnpm build
-      - name: Run int128/wait-for-deployment-action
-        uses: ./
-
+      - run: sleep 15
       - uses: actions/github-script@60a0d83039c74a4aee543508d2ffcb1c3799cdea # v7.0.1
         env:
           deployment_id: ${{ needs.create-deployments.outputs.app1 }}
@@ -83,9 +74,6 @@ jobs:
               state: 'success',
               log_url: `https://argocd.example.com/pr-${context.issue.number}--app1`,
             })
-      - name: Run int128/wait-for-deployment-action
-        uses: ./
-
       - uses: actions/github-script@60a0d83039c74a4aee543508d2ffcb1c3799cdea # v7.0.1
         env:
           deployment_id: ${{ needs.create-deployments.outputs.app2 }}
@@ -98,9 +86,6 @@ jobs:
               state: 'success',
               log_url: `https://argocd.example.com/pr-${context.issue.number}--app2`,
             })
-      - name: Run int128/wait-for-deployment-action
-        uses: ./
-
       - uses: actions/github-script@60a0d83039c74a4aee543508d2ffcb1c3799cdea # v7.0.1
         env:
           deployment_id: ${{ needs.create-deployments.outputs.app3 }}
@@ -113,8 +98,6 @@ jobs:
               state: 'success',
               log_url: `https://argocd.example.com/pr-${context.issue.number}--app3`,
             })
-      - name: Run int128/wait-for-deployment-action
-        uses: ./
 
   e2e-test-wait:
     needs: create-deployments
@@ -131,9 +114,10 @@ jobs:
       - name: Run int128/wait-for-deployment-action
         uses: ./
         with:
-          wait-until: completed
-          wait-initial-delay-seconds: 0
-          wait-period-seconds: 3
+          until: completed
+          deployment-sha: ${{ github.event.pull_request.head.sha || github.sha }}
+          initial-delay-seconds: 0
+          period-seconds: 3
 
   generate:
     runs-on: ubuntu-latest
