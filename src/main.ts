@@ -4,7 +4,7 @@ import { run } from './run.js'
 
 const main = async (): Promise<void> => {
   const outputs = await run({
-    until: waitUntilOf(core.getInput('until', { required: true })),
+    until: parseUntil(core.getInput('until', { required: true })),
     initialDelaySeconds: Number.parseInt(core.getInput('initial-delay-seconds', { required: true })),
     periodSeconds: Number.parseInt(core.getInput('period-seconds', { required: true })),
     owner: github.context.repo.owner,
@@ -22,7 +22,7 @@ const main = async (): Promise<void> => {
   await core.summary.write()
 }
 
-const waitUntilOf = (s: string): 'completed' | 'succeeded' => {
+const parseUntil = (s: string): 'completed' | 'succeeded' => {
   if (s === 'completed' || s === 'succeeded') {
     return s
   }
