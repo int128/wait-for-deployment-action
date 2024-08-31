@@ -6,11 +6,11 @@ import { aggregate } from './aggregate.js'
 type Octokit = ReturnType<typeof github.getOctokit>
 
 type Inputs = {
-  waitInitialDelaySeconds: number
-  waitPeriodSeconds: number
+  initialDelaySeconds: number
+  periodSeconds: number
   owner: string
   repo: string
-  sha: string
+  deploymentSha: string
 }
 
 type Outputs = {
@@ -22,21 +22,21 @@ type Outputs = {
 }
 
 export const waitForDeployments = async (octokit: Octokit, inputs: Inputs): Promise<Outputs> => {
-  core.info(`Waiting for initial delay ${inputs.waitInitialDelaySeconds}s`)
-  await sleep(inputs.waitInitialDelaySeconds * 1000)
+  core.info(`Waiting for initial delay ${inputs.initialDelaySeconds}s`)
+  await sleep(inputs.initialDelaySeconds * 1000)
 
   for (;;) {
     const deployments = await listDeployments(octokit, {
       owner: inputs.owner,
       name: inputs.repo,
-      expression: inputs.sha,
+      expression: inputs.deploymentSha,
     })
     const outputs = aggregate(deployments)
     if (outputs.completed) {
       return outputs
     }
-    core.info(`Waiting for period ${inputs.waitPeriodSeconds}s`)
-    await sleep(inputs.waitPeriodSeconds * 1000)
+    core.info(`Waiting for period ${inputs.periodSeconds}s`)
+    await sleep(inputs.periodSeconds * 1000)
   }
 }
 

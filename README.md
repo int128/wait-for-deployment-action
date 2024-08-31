@@ -4,37 +4,10 @@ This is an action to aggregate GitHub Deployments against the current commit.
 
 ## Getting Started
 
-### Example: notify deployment_status event
-
-To notify the change of deployment status to a comment in the pull request,
+To wait until all deployments are succeeded,
 
 ```yaml
-name: deployment-status
-
-on:
-  deployment_status:
-
-jobs:
-  notify:
-    if: github.event.deployment_status.state == 'success' || github.event.deployment_status.state == 'failure'
-    runs-on: ubuntu-latest
-    steps:
-      - uses: int128/wait-for-deployment-action@v1
-        id: deployments
-      - uses: int128/comment-action@v1
-        with:
-          update-if-exists: replace
-          post: |
-            ## Deploy completed
-            ${{ steps.deployments.outputs.summary }}
-```
-
-### Example: wait for the deployments
-
-To wait until all deployments are completed,
-
-```yaml
-name: wait-for-deployment-completed
+name: wait-for-deployment-succeeded
 
 on:
   pull_request:
@@ -45,14 +18,15 @@ jobs:
     timeout-minutes: 30
     steps:
       - uses: int128/wait-for-deployment-action@v1
-        id: deployments
+        id: deployment
         with:
-          wait-until: succeeded
+          until: succeeded
+          deployment-sha: ${{ github.event.pull_request.head.sha || github.sha }}
       - uses: int128/comment-action@v1
         with:
           post: |
-            ## Deploy completed
-            ${{ steps.deployments.outputs.summary }}
+            ## Deploy succeeded
+            ${{ steps.deployment.outputs.summary }}
 ```
 
 ## Specification
@@ -65,20 +39,20 @@ This action determines the status as follows:
 
 ### Inputs
 
-| Name                         | Default                                              | Description                           |
-| ---------------------------- | ---------------------------------------------------- | ------------------------------------- |
-| `wait-until`                 | (optional)                                           | If set, wait for the status           |
-| `wait-initial-delay-seconds` | 10                                                   | Initial delay before polling          |
-| `wait-period-seconds`        | 15                                                   | Polling period                        |
-| `sha`                        | `github.event.pull_request.head.sha` or `github.sha` | Commit SHA or ref to find deployments |
-| `token`                      | `github.token`                                       | GitHub token                          |
+| Name                    | Default        | Description                       |
+| ----------------------- | -------------- | --------------------------------- |
+| `until`                 | (required)     | Either `completed` or `succeeded` |
+| `initial-delay-seconds` | 10             | Initial delay before polling      |
+| `period-seconds`        | 15             | Polling period                    |
+| `deployment-sha`        | (required)     | Find deployments by commit        |
+| `token`                 | `github.token` | GitHub token                      |
 
-If `wait-until` is set to `succeeded`,
+If `until` is set to `succeeded`,
 
 - It exits successfully when **all** deployments are succeeded
 - It exits with an error when **any** deployment is failed
 
-If `wait-until` is set to `completed`, it exits when all deployments are completed.
+If `until` is set to `completed`, it exits when all deployments are completed.
 
 ### Outputs
 
