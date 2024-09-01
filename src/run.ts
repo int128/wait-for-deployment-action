@@ -6,6 +6,7 @@ type Inputs = {
   until: 'completed' | 'succeeded'
   initialDelaySeconds: number
   periodSeconds: number
+  timeoutSeconds: number | null
   owner: string
   repo: string
   deploymentSha: string

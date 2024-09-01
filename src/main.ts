@@ -7,6 +7,7 @@ const main = async (): Promise<void> => {
     until: parseUntil(core.getInput('until', { required: true })),
     initialDelaySeconds: Number.parseInt(core.getInput('initial-delay-seconds', { required: true })),
     periodSeconds: Number.parseInt(core.getInput('period-seconds', { required: true })),
+    timeoutSeconds: Number.parseInt(core.getInput('timeout-seconds')) || null,
     owner: github.context.repo.owner,
     repo: github.context.repo.repo,
     deploymentSha: core.getInput('deployment-sha', { required: true }),

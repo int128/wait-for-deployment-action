@@ -13,6 +13,9 @@ inputs:
     description: Polling period in seconds
     required: true
     default: '15'
+  timeout-seconds:
+    description: If set, poll until the timeout
+    required: false
   deployment-sha:
     description: Find deployments by commit
     required: true

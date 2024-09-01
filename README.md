@@ -44,6 +44,7 @@ This action determines the status as follows:
 | `until`                 | (required)     | Either `completed` or `succeeded` |
 | `initial-delay-seconds` | 10             | Initial delay before polling      |
 | `period-seconds`        | 15             | Polling period                    |
+| `timeout-seconds`       | -              | If set, poll until the timeout    |
 | `deployment-sha`        | (required)     | Find deployments by commit        |
 | `token`                 | `github.token` | GitHub token                      |
 
