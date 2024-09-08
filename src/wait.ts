@@ -8,6 +8,7 @@ type Octokit = ReturnType<typeof github.getOctokit>
 type Inputs = {
   initialDelaySeconds: number
   periodSeconds: number
+  timeoutSeconds: number | null
   owner: string
   repo: string
   deploymentSha: string
@@ -22,6 +23,7 @@ type Outputs = {
 }
 
 export const waitForDeployments = async (octokit: Octokit, inputs: Inputs): Promise<Outputs> => {
+  const startedAt = Date.now()
   core.info(`Waiting for initial delay ${inputs.initialDelaySeconds}s`)
   await sleep(inputs.initialDelaySeconds * 1000)
 
@@ -33,6 +35,11 @@ export const waitForDeployments = async (octokit: Octokit, inputs: Inputs): Prom
     })
     const outputs = aggregate(deployments)
     if (outputs.completed) {
+      return outputs
+    }
+    const elapsedSec = Math.floor((Date.now() - startedAt) / 1000)
+    if (inputs.timeoutSeconds && elapsedSec > inputs.timeoutSeconds) {
+      core.info(`Timeout (elapsed ${elapsedSec}s > timeout ${inputs.timeoutSeconds}s)`)
       return outputs
     }
     core.info(`Waiting for period ${inputs.periodSeconds}s`)
