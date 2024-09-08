@@ -43,7 +43,8 @@ If `until` is set to `completed`, this action exits when all deployments are com
 If `timeout-seconds` is set, this action stops after the timeout.
 This action exits successfully even if any deployment is not completed.
 
-If both `timeout-seconds` and `until: succeeded` is set, this action exits immediately when any deployment is failed.
+If both `timeout-seconds` and `until: succeeded` is set, and when any deployment is failed,
+this action exits with an error after the timeout.
 
 ## Specification
 
