@@ -27,6 +27,11 @@ export const run = async (inputs: Inputs): Promise<Outputs> => {
   core.info(`Waiting for deployments until the status is ${inputs.until}`)
   const outputs = await waitForDeployments(octokit, inputs)
   core.info(`----`)
+  core.info(`succeeded: ${outputs.succeeded}`)
+  core.info(`failed: ${outputs.failed}`)
+  core.info(`completed: ${outputs.completed}`)
+  core.info(`progressing: ${outputs.progressing}`)
+  core.info(`----`)
   core.info(outputs.summary)
   core.info(`----`)
   if (inputs.until === 'succeeded' && outputs.failed) {

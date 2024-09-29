@@ -14,7 +14,6 @@ const main = async (): Promise<void> => {
     token: core.getInput('token', { required: true }),
     workflowURL: `${github.context.serverUrl}/${github.context.repo.owner}/${github.context.repo.repo}/actions/runs/${github.context.runId}`,
   })
-  core.info(`Outputs: ${JSON.stringify(outputs, undefined, 2)}`)
   core.setOutput('progressing', outputs.progressing)
   core.setOutput('succeeded', outputs.succeeded)
   core.setOutput('failed', outputs.failed)

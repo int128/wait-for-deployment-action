@@ -42,7 +42,7 @@ export const waitForDeployments = async (octokit: Octokit, inputs: Inputs): Prom
     core.endGroup()
     const elapsedSec = Math.floor((Date.now() - startedAt) / 1000)
     if (inputs.timeoutSeconds && elapsedSec > inputs.timeoutSeconds) {
-      core.info(`Timeout (elapsed ${elapsedSec}s > timeout ${inputs.timeoutSeconds}s)`)
+      core.info(`Timed out (elapsed ${elapsedSec}s > timeout ${inputs.timeoutSeconds}s)`)
       return outputs
     }
     core.info(`Waiting for period ${inputs.periodSeconds}s`)
