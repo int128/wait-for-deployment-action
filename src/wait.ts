@@ -27,12 +27,12 @@ export const waitForDeployments = async (octokit: Octokit, inputs: Inputs): Prom
     owner: inputs.owner,
     repo: inputs.repo,
     issue_number: github.context.issue.number, // TODO
-    body: `Deploying the commit ${inputs.sha}`,
+    body: `Deploying the commit ${inputs.deploymentSha}`,
   })
 
   const startedAt = Date.now()
-  core.info(`Waiting for initial delay ${inputs.waitInitialDelaySeconds}s`)
-  await sleep(inputs.waitInitialDelaySeconds * 1000)
+  core.info(`Waiting for initial delay ${inputs.initialDelaySeconds}s`)
+  await sleep(inputs.initialDelaySeconds * 1000)
 
   for (;;) {
     const deployments = await listDeployments(octokit, {
