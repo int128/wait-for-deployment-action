@@ -1,37 +1,43 @@
+import * as core from '@actions/core'
 import * as github from '@actions/github'
-import { aggregate } from './aggregate'
-import { listDeployments } from './queries/listDeployments'
-import { waitForDeployments } from './wait'
+import { waitForDeployments } from './wait.js'
 
 type Inputs = {
-  waitUntil: 'completed' | 'succeeded' | undefined
-  waitInitialDelaySeconds: number
-  waitPeriodSeconds: number
+  until: 'completed' | 'succeeded'
+  initialDelaySeconds: number
+  periodSeconds: number
+  timeoutSeconds: number | null
   owner: string
   repo: string
-  sha: string
+  deploymentSha: string
   token: string
+  workflowURL: string
 }
 
 type Outputs = {
   progressing: boolean
+  succeeded: boolean
   failed: boolean
   completed: boolean
-  succeeded: boolean
   summary: string
 }
 
 export const run = async (inputs: Inputs): Promise<Outputs> => {
   const octokit = github.getOctokit(inputs.token)
-
-  if (inputs.waitUntil) {
-    return await waitForDeployments(octokit, inputs)
+  core.info(`Waiting for deployments until the status is ${inputs.until}`)
+  const outputs = await waitForDeployments(octokit, inputs)
+  core.info(`----`)
+  core.info(`succeeded: ${outputs.succeeded}`)
+  core.info(`failed: ${outputs.failed}`)
+  core.info(`completed: ${outputs.completed}`)
+  core.info(`progressing: ${outputs.progressing}`)
+  core.info(`----`)
+  core.info(outputs.summary)
+  core.info(`----`)
+  if (inputs.until === 'succeeded' && outputs.failed) {
+    core.setFailed(`Some deployment has failed. See ${inputs.workflowURL} for the summary.`)
+    return outputs
   }
-
-  const deployments = await listDeployments(octokit, {
-    owner: inputs.owner,
-    name: inputs.repo,
-    expression: inputs.sha,
-  })
-  return aggregate(deployments)
+  core.info(`You can see the summary at ${inputs.workflowURL}`)
+  return outputs
 }

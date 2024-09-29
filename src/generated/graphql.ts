@@ -1,4 +1,4 @@
-import * as Types from './graphql-types';
+import * as Types from './graphql-types.js';
 
 export type ListDeploymentsQueryVariables = Types.Exact<{
   owner: Types.Scalars['String']['input'];

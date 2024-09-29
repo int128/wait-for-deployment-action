@@ -1,6 +1,6 @@
 import assert from 'assert'
-import { ListDeploymentsQuery } from './generated/graphql'
-import { DeploymentState } from './generated/graphql-types'
+import { ListDeploymentsQuery } from './generated/graphql.js'
+import { DeploymentState } from './generated/graphql-types.js'
 
 export type Outputs = {
   progressing: boolean
@@ -25,20 +25,14 @@ export const aggregate = (q: ListDeploymentsQuery): Outputs => {
   const progressing = nodes.some(
     (node) => node.state === DeploymentState.Queued || node.state === DeploymentState.InProgress,
   )
-  const failed = nodes.some((node) => node.state === DeploymentState.Failure || node.state === DeploymentState.Error)
-  const completed = !nodes.some(
-    (node) =>
-      node.state === DeploymentState.Pending ||
-      node.state === DeploymentState.Waiting ||
-      node.state === DeploymentState.Queued ||
-      node.state === DeploymentState.InProgress,
+  const succeeded = nodes.every(
+    (node) => node.state === DeploymentState.Active || node.state === DeploymentState.Success,
   )
-  const succeeded = !nodes.some(
+  const failed = nodes.some((node) => node.state === DeploymentState.Failure || node.state === DeploymentState.Error)
+  const completed = nodes.every(
     (node) =>
-      node.state === DeploymentState.Pending ||
-      node.state === DeploymentState.Waiting ||
-      node.state === DeploymentState.Queued ||
-      node.state === DeploymentState.InProgress ||
+      node.state === DeploymentState.Active ||
+      node.state === DeploymentState.Success ||
       node.state === DeploymentState.Failure ||
       node.state === DeploymentState.Error,
   )
@@ -48,21 +42,22 @@ export const aggregate = (q: ListDeploymentsQuery): Outputs => {
       assert(node.environment != null)
       assert(node.state != null)
       const description = node.latestStatus?.description?.trim() ?? ''
-      const stateLink = toLink(node.state, node.latestStatus?.logUrl)
+      const environmentLink = toLink(node.environment, node.latestStatus?.logUrl)
       switch (node.state) {
-        case DeploymentState.Pending:
-          return `- ${node.environment}: ${stateLink}: ${description}`
-
         case DeploymentState.Queued:
         case DeploymentState.InProgress:
-          return `- ${node.environment}: :rocket: ${stateLink}: ${description}`
+          return `- ${environmentLink}: :rocket: ${node.state}: ${description}`
 
         case DeploymentState.Failure:
         case DeploymentState.Error:
-          return `- ${node.environment}: :x: ${stateLink}: ${description}`
+          return `- ${environmentLink}: :x: ${node.state}: ${description}`
 
         case DeploymentState.Active:
-          return `- ${node.environment}: :white_check_mark: ${stateLink}: ${description}`
+        case DeploymentState.Success:
+          return `- ${environmentLink}: :white_check_mark: ${node.state}: ${description}`
+
+        default:
+          return `- ${environmentLink}: ${node.state}: ${description}`
       }
     })
     .filter<string>((s): s is string => s !== undefined)
@@ -76,10 +71,9 @@ export const aggregate = (q: ListDeploymentsQuery): Outputs => {
   }
 }
 
-const toLink = (state: DeploymentState, url: string | null | undefined) => {
-  const stateString = state.toLowerCase().replace('_', ' ')
+const toLink = (s: string, url: string | null | undefined) => {
   if (url == null) {
-    return stateString
+    return s
   }
-  return `[${stateString}](${url})`
+  return `[${s}](${url})`
 }

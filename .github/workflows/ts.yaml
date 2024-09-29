@@ -6,7 +6,9 @@ on:
       - src/**
       - tests/**
       - '*.json'
-      - action.yaml
+      - '*.yaml'
+      - '*.config.*'
+      - graphql-codegen.*
       - .github/workflows/ts.yaml
   push:
     branches:
@@ -15,7 +17,9 @@ on:
       - src/**
       - tests/**
       - '*.json'
-      - action.yaml
+      - '*.yaml'
+      - '*.config.*'
+      - graphql-codegen.*
       - .github/workflows/ts.yaml
 
 jobs:
@@ -23,13 +27,13 @@ jobs:
     runs-on: ubuntu-latest
     timeout-minutes: 10
     steps:
-      - uses: actions/checkout@b4ffde65f46336ab88eb53be808477a3936bae11 # v4.1.1
-      - uses: actions/setup-node@b39b52d1213e96004bfcb1c61a8a6fa8ab84f3e8 # v4.0.1
+      - uses: actions/checkout@d632683dd7b4114ad314bca15554477dd762a938 # v4.2.0
+      - uses: actions/setup-node@0a44ba7841725637a19e28fa30b79a866c81b0a6 # v4.0.4
         with:
           node-version: 20
-          cache: yarn
-      - run: yarn
-      - run: yarn test
+      - run: corepack enable pnpm
+      - run: pnpm i
+      - run: pnpm test
 
   create-deployments:
     runs-on: ubuntu-latest
@@ -39,15 +43,15 @@ jobs:
       app2: ${{ steps.app2.outputs.id }}
       app3: ${{ steps.app3.outputs.id }}
     steps:
-      - uses: int128/deployment-action@5be0a91e042fcdf3e6aa0cb0ba735ef6fae15eb5 # v1.27.0
+      - uses: int128/deployment-action@573b88baf9791a877f3b4720b2edd0e927259d1b # v1.36.0
         id: app1
         with:
           environment-suffix: /app1
-      - uses: int128/deployment-action@5be0a91e042fcdf3e6aa0cb0ba735ef6fae15eb5 # v1.27.0
+      - uses: int128/deployment-action@573b88baf9791a877f3b4720b2edd0e927259d1b # v1.36.0
         id: app2
         with:
           environment-suffix: /app2
-      - uses: int128/deployment-action@5be0a91e042fcdf3e6aa0cb0ba735ef6fae15eb5 # v1.27.0
+      - uses: int128/deployment-action@573b88baf9791a877f3b4720b2edd0e927259d1b # v1.36.0
         id: app3
         with:
           environment-suffix: /app3
@@ -57,17 +61,7 @@ jobs:
     runs-on: ubuntu-latest
     timeout-minutes: 10
     steps:
-      - uses: actions/checkout@b4ffde65f46336ab88eb53be808477a3936bae11 # v4.1.1
-      - uses: actions/setup-node@b39b52d1213e96004bfcb1c61a8a6fa8ab84f3e8 # v4.0.1
-        with:
-          node-version: 20
-          cache: yarn
-      - run: yarn
-      - run: yarn build
-      - run: yarn package
-      - name: Run int128/aggregate-deployments-action
-        uses: ./
-
+      - run: sleep 15
       - uses: actions/github-script@60a0d83039c74a4aee543508d2ffcb1c3799cdea # v7.0.1
         env:
           deployment_id: ${{ needs.create-deployments.outputs.app1 }}
@@ -80,9 +74,6 @@ jobs:
               state: 'success',
               log_url: `https://argocd.example.com/pr-${context.issue.number}--app1`,
             })
-      - name: Run int128/aggregate-deployments-action
-        uses: ./
-
       - uses: actions/github-script@60a0d83039c74a4aee543508d2ffcb1c3799cdea # v7.0.1
         env:
           deployment_id: ${{ needs.create-deployments.outputs.app2 }}
@@ -95,9 +86,6 @@ jobs:
               state: 'success',
               log_url: `https://argocd.example.com/pr-${context.issue.number}--app2`,
             })
-      - name: Run int128/aggregate-deployments-action
-        uses: ./
-
       - uses: actions/github-script@60a0d83039c74a4aee543508d2ffcb1c3799cdea # v7.0.1
         env:
           deployment_id: ${{ needs.create-deployments.outputs.app3 }}
@@ -110,28 +98,26 @@ jobs:
               state: 'success',
               log_url: `https://argocd.example.com/pr-${context.issue.number}--app3`,
             })
-      - name: Run int128/aggregate-deployments-action
-        uses: ./
 
   e2e-test-wait:
     needs: create-deployments
     runs-on: ubuntu-latest
     timeout-minutes: 10
     steps:
-      - uses: actions/checkout@b4ffde65f46336ab88eb53be808477a3936bae11 # v4.1.1
-      - uses: actions/setup-node@b39b52d1213e96004bfcb1c61a8a6fa8ab84f3e8 # v4.0.1
+      - uses: actions/checkout@d632683dd7b4114ad314bca15554477dd762a938 # v4.2.0
+      - uses: actions/setup-node@0a44ba7841725637a19e28fa30b79a866c81b0a6 # v4.0.4
         with:
           node-version: 20
-          cache: yarn
-      - run: yarn
-      - run: yarn build
-      - run: yarn package
-      - name: Run int128/aggregate-deployments-action
+      - run: corepack enable pnpm
+      - run: pnpm i
+      - run: pnpm build
+      - name: Run int128/wait-for-deployment-action
         uses: ./
         with:
-          wait-until: completed
-          wait-initial-delay-seconds: 0
-          wait-period-seconds: 3
+          until: completed
+          deployment-sha: ${{ github.event.pull_request.head.sha || github.sha }}
+          initial-delay-seconds: 0
+          period-seconds: 3
 
   generate:
     runs-on: ubuntu-latest
@@ -140,12 +126,13 @@ jobs:
       contents: write
       pull-requests: write
     steps:
-      - uses: actions/checkout@b4ffde65f46336ab88eb53be808477a3936bae11 # v4.1.1
-      - uses: actions/setup-node@b39b52d1213e96004bfcb1c61a8a6fa8ab84f3e8 # v4.0.1
+      - uses: actions/checkout@d632683dd7b4114ad314bca15554477dd762a938 # v4.2.0
+      - uses: actions/setup-node@0a44ba7841725637a19e28fa30b79a866c81b0a6 # v4.0.4
         with:
           node-version: 20
-          cache: yarn
-      - run: yarn
-      - run: yarn lint --fix
-      - run: yarn format
-      - uses: int128/update-generated-files-action@1c892bb06bee834aaea172d2dc36fc772f59c1df # v2.47.0
+      - run: corepack enable pnpm
+      - run: pnpm i
+      - run: pnpm lint --fix
+      - run: pnpm format
+      - run: pnpm graphql-codegen
+      - uses: int128/update-generated-files-action@6ac8557861efc7d8c34f4e3f182f9c39b26e6e76 # v2.53.0

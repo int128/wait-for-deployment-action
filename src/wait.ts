@@ -1,18 +1,17 @@
 import * as core from '@actions/core'
 import * as github from '@actions/github'
-import { GitHub } from '@actions/github/lib/utils'
-import { listDeployments } from './queries/listDeployments'
-import { aggregate } from './aggregate'
+import { listDeployments } from './queries/listDeployments.js'
+import { aggregate } from './aggregate.js'
 
-type Octokit = InstanceType<typeof GitHub>
+type Octokit = ReturnType<typeof github.getOctokit>
 
 type Inputs = {
-  waitUntil: 'completed' | 'succeeded' | undefined
-  waitInitialDelaySeconds: number
-  waitPeriodSeconds: number
+  initialDelaySeconds: number
+  periodSeconds: number
+  timeoutSeconds: number | null
   owner: string
   repo: string
-  sha: string
+  deploymentSha: string
 }
 
 type Outputs = {
@@ -31,15 +30,15 @@ export const waitForDeployments = async (octokit: Octokit, inputs: Inputs): Prom
     body: `Deploying the commit ${inputs.sha}`,
   })
 
+  const startedAt = Date.now()
   core.info(`Waiting for initial delay ${inputs.waitInitialDelaySeconds}s`)
   await sleep(inputs.waitInitialDelaySeconds * 1000)
 
-  core.info(`Waiting for deployments until the status is ${inputs.waitUntil}`)
   for (;;) {
     const deployments = await listDeployments(octokit, {
       owner: inputs.owner,
       name: inputs.repo,
-      expression: inputs.sha,
+      expression: inputs.deploymentSha,
     })
     const outputs = aggregate(deployments)
 
@@ -50,19 +49,19 @@ export const waitForDeployments = async (octokit: Octokit, inputs: Inputs): Prom
       body: `## Deployment summary\n${outputs.summary}`,
     })
 
-    if (inputs.waitUntil === 'succeeded') {
-      if (outputs.succeeded) {
-        return outputs
-      }
-      if (outputs.failed) {
-        throw new Error(`deployment was failed:\n${outputs.summary}`)
-      }
-    }
-    if (inputs.waitUntil === 'completed' && outputs.completed) {
+    if (outputs.completed) {
       return outputs
     }
-    core.info(`Waiting for period ${inputs.waitPeriodSeconds}s`)
-    await sleep(inputs.waitPeriodSeconds * 1000)
+    core.startGroup(`Current deployments`)
+    core.info(outputs.summary)
+    core.endGroup()
+    const elapsedSec = Math.floor((Date.now() - startedAt) / 1000)
+    if (inputs.timeoutSeconds && elapsedSec > inputs.timeoutSeconds) {
+      core.info(`Timed out (elapsed ${elapsedSec}s > timeout ${inputs.timeoutSeconds}s)`)
+      return outputs
+    }
+    core.info(`Waiting for period ${inputs.periodSeconds}s`)
+    await sleep(inputs.periodSeconds * 1000)
   }
 }
 

@@ -1,40 +1,13 @@
-# aggregate-deployments-action [![ts](https://github.com/int128/aggregate-deployments-action/actions/workflows/ts.yaml/badge.svg)](https://github.com/int128/aggregate-deployments-action/actions/workflows/ts.yaml)
+# wait-for-deployment-action [![ts](https://github.com/int128/wait-for-deployment-action/actions/workflows/ts.yaml/badge.svg)](https://github.com/int128/wait-for-deployment-action/actions/workflows/ts.yaml)
 
-This is an action to aggregate GitHub Deployments against the current commit.
+This is an action to wait for the GitHub Deployment.
 
 ## Getting Started
 
-### Example: notify deployment_status event
-
-To notify the change of deployment status to a comment in the pull request,
+To post a comment when all deployments are succeeded,
 
 ```yaml
-name: deployment-status
-
-on:
-  deployment_status:
-
-jobs:
-  notify:
-    if: github.event.deployment_status.state == 'success' || github.event.deployment_status.state == 'failure'
-    runs-on: ubuntu-latest
-    steps:
-      - uses: int128/aggregate-deployments-action@v1
-        id: deployments
-      - uses: int128/comment-action@v1
-        with:
-          update-if-exists: replace
-          post: |
-            ## Deploy completed
-            ${{ steps.deployments.outputs.summary }}
-```
-
-### Example: wait for the deployments
-
-To wait until all deployments are completed,
-
-```yaml
-name: wait-for-deployment-completed
+name: wait-for-deployment-succeeded
 
 on:
   pull_request:
@@ -44,42 +17,68 @@ jobs:
     runs-on: ubuntu-latest
     timeout-minutes: 30
     steps:
-      - uses: int128/aggregate-deployments-action@v1
-        id: deployments
+      - uses: int128/wait-for-deployment-action@v1
+        id: deployment
         with:
-          wait-until: succeeded
+          until: succeeded
+          deployment-sha: ${{ github.event.pull_request.head.sha || github.sha }}
       - uses: int128/comment-action@v1
         with:
           post: |
-            ## Deploy completed
-            ${{ steps.deployments.outputs.summary }}
+            ## Deploy succeeded
+            ${{ steps.deployment.outputs.summary }}
 ```
+
+### Condition
+
+If `until` is set to `succeeded`,
+
+- When **all** deployments are succeeded, this action exits successfully.
+- When **any** deployment is failed, this action exits with an error.
+
+If `until` is set to `completed`, this action exits when all deployments are completed.
+
+### Timeout
+
+If `timeout-seconds` is set, this action stops after the timeout.
+This action exits successfully even if any deployment is not completed.
+
+If both `timeout-seconds` and `until: succeeded` is set, and when any deployment is failed,
+this action exits with an error after the timeout.
 
 ## Specification
 
+This action determines the status as below table.
+
+| GitHub deployment status | Progressing | Succeeded | Failed | Completed |
+| ------------------------ | ----------- | --------- | ------ | --------- |
+| `queued`                 | x           | -         | -      | -         |
+| `in_progress`            | x           | -         | -      | -         |
+| `active`                 | -           | x         | -      | x         |
+| `success`                | -           | x         | -      | x         |
+| `failure`                | -           | -         | x      | x         |
+| `error`                  | -           | -         | x      | x         |
+| Others                   | -           | -         | -      | -         |
+
+x: This action maps the GitHub deployment status to the corresponding column.
+
 ### Inputs
 
-| Name                         | Default                                              | Description                           |
-| ---------------------------- | ---------------------------------------------------- | ------------------------------------- |
-| `wait-until`                 | (optional)                                           | If set, wait for the status           |
-| `wait-initial-delay-seconds` | 10                                                   | Initial delay before polling          |
-| `wait-period-seconds`        | 15                                                   | Polling period                        |
-| `sha`                        | `github.event.pull_request.head.sha` or `github.sha` | Commit SHA or ref to find deployments |
-| `token`                      | `github.token`                                       | GitHub token                          |
-
-If `wait-until` is set to `succeeded`,
-
-- It exits successfully when **all** deployments are succeeded
-- It exits with an error when **any** deployment is failed
-
-If `wait-until` is set to `completed`, it exits when all deployments are completed.
+| Name                    | Default        | Description                       |
+| ----------------------- | -------------- | --------------------------------- |
+| `until`                 | (required)     | Either `completed` or `succeeded` |
+| `initial-delay-seconds` | 10             | Initial delay before polling      |
+| `period-seconds`        | 15             | Polling period                    |
+| `timeout-seconds`       | -              | If set, poll until the timeout    |
+| `deployment-sha`        | (required)     | Find deployments by commit        |
+| `token`                 | `github.token` | GitHub token                      |
 
 ### Outputs
 
 | Name          | Description                           |
 | ------------- | ------------------------------------- |
 | `progressing` | true if any deployment is progressing |
+| `succeeded`   | true if all deployments are succeeded |
 | `failed`      | true if any deployment is failed      |
 | `completed`   | true if all deployments are completed |
-| `succeeded`   | true if all deployments are succeeded |
 | `summary`     | markdown list of all deployments      |
