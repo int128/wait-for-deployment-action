@@ -41,7 +41,7 @@ test('all pending', () => {
     failed: false,
     completed: false,
     succeeded: false,
-    summary: ['- pr-2/app1: pending: ', '- pr-2/app2: pending: ', '- pr-2/app3: pending: '].join('\n'),
+    summary: ['- pr-2/app1: PENDING: ', '- pr-2/app2: PENDING: ', '- pr-2/app3: PENDING: '].join('\n'),
   })
 })
 
@@ -81,7 +81,7 @@ test('progressing', () => {
     failed: false,
     completed: false,
     succeeded: false,
-    summary: ['- pr-2/app1: pending: ', '- pr-2/app2: :rocket: in progress: ', '- pr-2/app3: :rocket: queued: '].join(
+    summary: ['- pr-2/app1: PENDING: ', '- pr-2/app2: :rocket: IN_PROGRESS: ', '- pr-2/app3: :rocket: QUEUED: '].join(
       '\n',
     ),
   })
@@ -123,7 +123,7 @@ test('any failed', () => {
     failed: true,
     completed: false,
     succeeded: false,
-    summary: ['- pr-2/app1: pending: ', '- pr-2/app2: :rocket: in progress: ', '- pr-2/app3: :x: failure: '].join('\n'),
+    summary: ['- pr-2/app1: PENDING: ', '- pr-2/app2: :rocket: IN_PROGRESS: ', '- pr-2/app3: :x: FAILURE: '].join('\n'),
   })
 })
 
@@ -167,8 +167,8 @@ test('all active', () => {
     completed: true,
     succeeded: true,
     summary: [
-      '- pr-727/app1: :white_check_mark: [active](https://argocd.example.com/applications/app1): Succeeded:\nsuccessfully synced (all tasks run)',
-      '- pr-727/app3: :white_check_mark: [active](https://argocd.example.com/applications/app3): Succeeded:\nsuccessfully synced (all tasks run)',
+      '- [pr-727/app1](https://argocd.example.com/applications/app1): :white_check_mark: ACTIVE: Succeeded:\nsuccessfully synced (all tasks run)',
+      '- [pr-727/app3](https://argocd.example.com/applications/app3): :white_check_mark: ACTIVE: Succeeded:\nsuccessfully synced (all tasks run)',
     ].join('\n'),
   })
 })

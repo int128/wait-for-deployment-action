@@ -42,22 +42,22 @@ export const aggregate = (q: ListDeploymentsQuery): Outputs => {
       assert(node.environment != null)
       assert(node.state != null)
       const description = node.latestStatus?.description?.trim() ?? ''
-      const stateLink = toLink(node.state, node.latestStatus?.logUrl)
+      const environmentLink = toLink(node.environment, node.latestStatus?.logUrl)
       switch (node.state) {
         case DeploymentState.Queued:
         case DeploymentState.InProgress:
-          return `- ${node.environment}: :rocket: ${stateLink}: ${description}`
+          return `- ${environmentLink}: :rocket: ${node.state}: ${description}`
 
         case DeploymentState.Failure:
         case DeploymentState.Error:
-          return `- ${node.environment}: :x: ${stateLink}: ${description}`
+          return `- ${environmentLink}: :x: ${node.state}: ${description}`
 
         case DeploymentState.Active:
         case DeploymentState.Success:
-          return `- ${node.environment}: :white_check_mark: ${stateLink}: ${description}`
+          return `- ${environmentLink}: :white_check_mark: ${node.state}: ${description}`
 
         default:
-          return `- ${node.environment}: ${stateLink}: ${description}`
+          return `- ${environmentLink}: ${node.state}: ${description}`
       }
     })
     .filter<string>((s): s is string => s !== undefined)
@@ -71,10 +71,9 @@ export const aggregate = (q: ListDeploymentsQuery): Outputs => {
   }
 }
 
-const toLink = (state: DeploymentState, url: string | null | undefined) => {
-  const stateString = state.toLowerCase().replace('_', ' ')
+const toLink = (s: string, url: string | null | undefined) => {
   if (url == null) {
-    return stateString
+    return s
   }
-  return `[${stateString}](${url})`
+  return `[${s}](${url})`
 }
