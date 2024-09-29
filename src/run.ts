@@ -11,6 +11,7 @@ type Inputs = {
   repo: string
   deploymentSha: string
   token: string
+  workflowURL: string
 }
 
 type Outputs = {
@@ -23,12 +24,15 @@ type Outputs = {
 
 export const run = async (inputs: Inputs): Promise<Outputs> => {
   const octokit = github.getOctokit(inputs.token)
-
   core.info(`Waiting for deployments until the status is ${inputs.until}`)
   const outputs = await waitForDeployments(octokit, inputs)
+  core.info(`----`)
+  core.info(outputs.summary)
+  core.info(`----`)
   if (inputs.until === 'succeeded' && outputs.failed) {
-    core.setFailed(`Some deployment failed:\n${outputs.summary}`)
+    core.setFailed(`Some deployment has failed. See ${inputs.workflowURL} for the summary.`)
     return outputs
   }
+  core.info(`You can see the summary at ${inputs.workflowURL}`)
   return outputs
 }

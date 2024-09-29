@@ -31,11 +31,9 @@ const query = /* GraphQL */ `
 `
 
 export const listDeployments = async (o: Octokit, v: ListDeploymentsQueryVariables): Promise<ListDeploymentsQuery> =>
-  logQuery(`listDeployments(${JSON.stringify(v)})`, () => o.graphql(query, v))
-
-const logQuery = async <Q>(group: string, f: () => Promise<Q>): Promise<Q> =>
-  core.group(group, async () => {
-    const q = await f()
+  await core.group('query listDeployments', async () => {
+    core.info(JSON.stringify(v, undefined, 2))
+    const q: ListDeploymentsQuery = await o.graphql(query, v)
     core.info(JSON.stringify(q, undefined, 2))
     return q
   })
