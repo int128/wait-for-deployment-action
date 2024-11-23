@@ -1,8 +1,6 @@
 import * as core from '@actions/core'
-import * as github from '@actions/github'
+import * as github from '../github.js'
 import { ListDeploymentsQuery, ListDeploymentsQueryVariables } from '../generated/graphql.js'
-
-type Octokit = ReturnType<typeof github.getOctokit>
 
 const query = /* GraphQL */ `
   query listDeployments($owner: String!, $name: String!, $expression: String!) {
@@ -30,7 +28,10 @@ const query = /* GraphQL */ `
   }
 `
 
-export const listDeployments = async (o: Octokit, v: ListDeploymentsQueryVariables): Promise<ListDeploymentsQuery> =>
+export const listDeployments = async (
+  o: github.Octokit,
+  v: ListDeploymentsQueryVariables,
+): Promise<ListDeploymentsQuery> =>
   await core.group('ListDeploymentsQuery', async () => {
     core.info(JSON.stringify(v))
     const q: ListDeploymentsQuery = await o.graphql(query, v)
