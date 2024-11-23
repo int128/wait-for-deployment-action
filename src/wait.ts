@@ -1,9 +1,7 @@
 import * as core from '@actions/core'
-import * as github from '@actions/github'
+import * as github from './github.js'
 import { listDeployments } from './queries/listDeployments.js'
 import { aggregate } from './aggregate.js'
-
-type Octokit = ReturnType<typeof github.getOctokit>
 
 type Inputs = {
   initialDelaySeconds: number
@@ -22,7 +20,7 @@ type Outputs = {
   summary: string
 }
 
-export const waitForDeployments = async (octokit: Octokit, inputs: Inputs): Promise<Outputs> => {
+export const waitForDeployments = async (octokit: github.Octokit, inputs: Inputs): Promise<Outputs> => {
   const startedAt = Date.now()
   core.info(`Waiting for initial delay ${inputs.initialDelaySeconds}s`)
   await sleep(inputs.initialDelaySeconds * 1000)

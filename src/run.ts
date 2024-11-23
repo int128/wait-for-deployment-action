@@ -1,5 +1,5 @@
 import * as core from '@actions/core'
-import * as github from '@actions/github'
+import * as github from './github.js'
 import { waitForDeployments } from './wait.js'
 
 type Inputs = {
