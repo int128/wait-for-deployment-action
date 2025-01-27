@@ -32,7 +32,9 @@ export const run = async (inputs: Inputs): Promise<Outputs> => {
   }
 
   core.summary.addHeading('wait-for-deployment summary', 2)
+  core.summary.addEOL()
   core.summary.addRaw(outputs.summary)
+  core.summary.addEOL()
   await core.summary.write()
   core.info(`You can see the summary at ${inputs.workflowURL}`)
   return outputs
