@@ -44,7 +44,7 @@ export const run = async (inputs: Inputs): Promise<Outputs> => {
     ],
     ...outputs.deployments.map((deployment) => [
       toHtmlLink(deployment.environment, deployment.url),
-      deployment.state,
+      toDecoratedState(deployment.state),
       deployment.description ?? '',
     ]),
   ])
@@ -57,25 +57,27 @@ const formatSummary = (deployments: Deployment[]) =>
   deployments
     .map((deployment) => {
       const environmentLink = toMarkdownLink(deployment.environment, deployment.url)
-      switch (deployment.state) {
-        case DeploymentState.Queued:
-        case DeploymentState.InProgress:
-          return `- ${environmentLink}: :rocket: ${deployment.state}: ${deployment.description}`
-
-        case DeploymentState.Failure:
-        case DeploymentState.Error:
-          return `- ${environmentLink}: :x: ${deployment.state}: ${deployment.description}`
-
-        case DeploymentState.Active:
-        case DeploymentState.Success:
-          return `- ${environmentLink}: :white_check_mark: ${deployment.state}: ${deployment.description}`
-
-        default:
-          return `- ${environmentLink}: ${deployment.state}: ${deployment.description}`
-      }
+      const decoratedState = toDecoratedState(deployment.state)
+      return `- ${environmentLink}: ${decoratedState}: ${deployment.description}`
     })
     .filter<string>((s): s is string => s !== undefined)
     .join('\n')
+
+const toDecoratedState = (state: DeploymentState): string => {
+  switch (state) {
+    case DeploymentState.Queued:
+    case DeploymentState.InProgress:
+      return `:rocket: ${state}`
+    case DeploymentState.Failure:
+    case DeploymentState.Error:
+      return `:x: ${state}`
+    case DeploymentState.Active:
+    case DeploymentState.Success:
+      return `:white_check_mark: ${state}`
+    default:
+      return state
+  }
+}
 
 const toMarkdownLink = (s: string, url: string | null | undefined) => {
   if (url == null) {
