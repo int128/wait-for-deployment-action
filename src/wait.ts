@@ -1,7 +1,7 @@
 import * as core from '@actions/core'
 import * as github from './github.js'
 import { listDeployments } from './queries/listDeployments.js'
-import { aggregate } from './aggregate.js'
+import { aggregate, Deployment } from './aggregate.js'
 
 type Inputs = {
   initialDelaySeconds: number
@@ -17,7 +17,7 @@ type Outputs = {
   failed: boolean
   completed: boolean
   succeeded: boolean
-  summary: string
+  deployments: Deployment[]
 }
 
 export const waitForDeployments = async (octokit: github.Octokit, inputs: Inputs): Promise<Outputs> => {
@@ -36,7 +36,9 @@ export const waitForDeployments = async (octokit: github.Octokit, inputs: Inputs
       return outputs
     }
     core.startGroup(`Current deployments`)
-    core.info(outputs.summary)
+    for (const deployment of outputs.deployments) {
+      core.info(`- ${deployment.environment}: ${deployment.state}: ${deployment.description}`)
+    }
     core.endGroup()
     const elapsedSec = Math.floor((Date.now() - startedAt) / 1000)
     if (inputs.timeoutSeconds && elapsedSec > inputs.timeoutSeconds) {

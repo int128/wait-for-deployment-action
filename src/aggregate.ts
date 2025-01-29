@@ -7,7 +7,14 @@ export type Outputs = {
   failed: boolean
   completed: boolean
   succeeded: boolean
-  summary: string
+  deployments: Deployment[]
+}
+
+export type Deployment = {
+  environment: string
+  state: DeploymentState
+  url: string | undefined
+  description: string | undefined
 }
 
 export const aggregate = (q: ListDeploymentsQuery): Outputs => {
@@ -37,43 +44,23 @@ export const aggregate = (q: ListDeploymentsQuery): Outputs => {
       node.state === DeploymentState.Error,
   )
 
-  const summary = nodes
-    .map((node) => {
-      assert(node.environment != null)
-      assert(node.state != null)
-      const description = node.latestStatus?.description?.trim() ?? ''
-      const environmentLink = toLink(node.environment, node.latestStatus?.logUrl)
-      switch (node.state) {
-        case DeploymentState.Queued:
-        case DeploymentState.InProgress:
-          return `- ${environmentLink}: :rocket: ${node.state}: ${description}`
-
-        case DeploymentState.Failure:
-        case DeploymentState.Error:
-          return `- ${environmentLink}: :x: ${node.state}: ${description}`
-
-        case DeploymentState.Active:
-        case DeploymentState.Success:
-          return `- ${environmentLink}: :white_check_mark: ${node.state}: ${description}`
-
-        default:
-          return `- ${environmentLink}: ${node.state}: ${description}`
-      }
-    })
-    .filter<string>((s): s is string => s !== undefined)
+  const deployments = nodes.map<Deployment>((node) => {
+    assert(node.environment != null)
+    assert(node.state != null)
+    const description = node.latestStatus?.description?.trim()
+    return {
+      environment: node.environment,
+      state: node.state,
+      url: node.latestStatus?.logUrl ?? undefined,
+      description: description,
+    }
+  })
 
   return {
     progressing,
     failed,
     completed,
     succeeded,
-    summary: summary.join('\n'),
+    deployments,
   }
-}
-
-const toLink = (s: string, url: string | null | undefined) => {
-  if (url == null) {
-    return s
-  }
-  return `[${s}](${url})`
 }

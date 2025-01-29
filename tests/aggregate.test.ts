@@ -41,7 +41,26 @@ test('all pending', () => {
     failed: false,
     completed: false,
     succeeded: false,
-    summary: ['- pr-2/app1: PENDING: ', '- pr-2/app2: PENDING: ', '- pr-2/app3: PENDING: '].join('\n'),
+    deployments: [
+      {
+        environment: 'pr-2/app1',
+        state: DeploymentState.Pending,
+        url: undefined,
+        description: undefined,
+      },
+      {
+        environment: 'pr-2/app2',
+        state: DeploymentState.Pending,
+        url: undefined,
+        description: undefined,
+      },
+      {
+        environment: 'pr-2/app3',
+        state: DeploymentState.Pending,
+        url: undefined,
+        description: undefined,
+      },
+    ],
   })
 })
 
@@ -81,9 +100,26 @@ test('progressing', () => {
     failed: false,
     completed: false,
     succeeded: false,
-    summary: ['- pr-2/app1: PENDING: ', '- pr-2/app2: :rocket: IN_PROGRESS: ', '- pr-2/app3: :rocket: QUEUED: '].join(
-      '\n',
-    ),
+    deployments: [
+      {
+        environment: 'pr-2/app1',
+        state: DeploymentState.Pending,
+        url: undefined,
+        description: undefined,
+      },
+      {
+        environment: 'pr-2/app2',
+        state: DeploymentState.InProgress,
+        url: undefined,
+        description: undefined,
+      },
+      {
+        environment: 'pr-2/app3',
+        state: DeploymentState.Queued,
+        url: undefined,
+        description: undefined,
+      },
+    ],
   })
 })
 
@@ -123,7 +159,26 @@ test('any failed', () => {
     failed: true,
     completed: false,
     succeeded: false,
-    summary: ['- pr-2/app1: PENDING: ', '- pr-2/app2: :rocket: IN_PROGRESS: ', '- pr-2/app3: :x: FAILURE: '].join('\n'),
+    deployments: [
+      {
+        environment: 'pr-2/app1',
+        state: DeploymentState.Pending,
+        url: undefined,
+        description: undefined,
+      },
+      {
+        environment: 'pr-2/app2',
+        state: DeploymentState.InProgress,
+        url: undefined,
+        description: undefined,
+      },
+      {
+        environment: 'pr-2/app3',
+        state: DeploymentState.Failure,
+        url: undefined,
+        description: undefined,
+      },
+    ],
   })
 })
 
@@ -166,9 +221,19 @@ test('all active', () => {
     failed: false,
     completed: true,
     succeeded: true,
-    summary: [
-      '- [pr-727/app1](https://argocd.example.com/applications/app1): :white_check_mark: ACTIVE: Succeeded:\nsuccessfully synced (all tasks run)',
-      '- [pr-727/app3](https://argocd.example.com/applications/app3): :white_check_mark: ACTIVE: Succeeded:\nsuccessfully synced (all tasks run)',
-    ].join('\n'),
+    deployments: [
+      {
+        environment: 'pr-727/app1',
+        state: DeploymentState.Active,
+        url: 'https://argocd.example.com/applications/app1',
+        description: 'Succeeded:\nsuccessfully synced (all tasks run)',
+      },
+      {
+        environment: 'pr-727/app3',
+        state: DeploymentState.Active,
+        url: 'https://argocd.example.com/applications/app3',
+        description: 'Succeeded:\nsuccessfully synced (all tasks run)',
+      },
+    ],
   })
 })
