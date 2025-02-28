@@ -58,9 +58,8 @@ const formatSummary = (deployments: Deployment[]) =>
     .map((deployment) => {
       const environmentLink = toMarkdownLink(deployment.environment, deployment.url)
       const decoratedState = toDecoratedState(deployment.state)
-      return `- ${environmentLink}: ${decoratedState}: ${deployment.description}`
+      return `- ${environmentLink}: ${decoratedState}: ${deployment.description ?? ''}`
     })
-    .filter<string>((s): s is string => s !== undefined)
     .join('\n')
 
 const toDecoratedState = (state: DeploymentState): string => {
