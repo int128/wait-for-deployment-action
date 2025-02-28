@@ -37,7 +37,7 @@ export const waitForDeployments = async (octokit: github.Octokit, inputs: Inputs
     }
     core.startGroup(`Current deployments`)
     for (const deployment of outputs.deployments) {
-      core.info(`- ${deployment.environment}: ${deployment.state}: ${deployment.description}`)
+      core.info(`- ${deployment.environment}: ${deployment.state}: ${deployment.description ?? ''}`)
     }
     core.endGroup()
     const elapsedSec = Math.floor((Date.now() - startedAt) / 1000)
