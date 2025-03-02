@@ -1,13 +1,13 @@
-import { aggregate, Outputs } from '../src/aggregate.js'
+import { rollupDeployments, Rollup } from '../src/deployments.js'
 import { DeploymentState } from '../src/generated/graphql-types.js'
 
 test('invalid query', () => {
-  expect(() => aggregate({})).toThrow()
+  expect(() => rollupDeployments({})).toThrow()
 })
 
 test('all pending', () => {
   expect(
-    aggregate({
+    rollupDeployments({
       rateLimit: {
         cost: 1,
       },
@@ -36,11 +36,13 @@ test('all pending', () => {
         },
       },
     }),
-  ).toStrictEqual<Outputs>({
-    progressing: false,
-    failed: false,
-    completed: false,
-    succeeded: false,
+  ).toStrictEqual<Rollup>({
+    conclusion: {
+      progressing: false,
+      failed: false,
+      completed: false,
+      succeeded: false,
+    },
     deployments: [
       {
         environment: 'pr-2/app1',
@@ -66,7 +68,7 @@ test('all pending', () => {
 
 test('progressing', () => {
   expect(
-    aggregate({
+    rollupDeployments({
       rateLimit: {
         cost: 1,
       },
@@ -95,11 +97,13 @@ test('progressing', () => {
         },
       },
     }),
-  ).toStrictEqual<Outputs>({
-    progressing: true,
-    failed: false,
-    completed: false,
-    succeeded: false,
+  ).toStrictEqual<Rollup>({
+    conclusion: {
+      progressing: true,
+      failed: false,
+      completed: false,
+      succeeded: false,
+    },
     deployments: [
       {
         environment: 'pr-2/app1',
@@ -125,7 +129,7 @@ test('progressing', () => {
 
 test('any failed', () => {
   expect(
-    aggregate({
+    rollupDeployments({
       rateLimit: {
         cost: 1,
       },
@@ -154,11 +158,13 @@ test('any failed', () => {
         },
       },
     }),
-  ).toStrictEqual<Outputs>({
-    progressing: true,
-    failed: true,
-    completed: false,
-    succeeded: false,
+  ).toStrictEqual<Rollup>({
+    conclusion: {
+      progressing: true,
+      failed: true,
+      completed: false,
+      succeeded: false,
+    },
     deployments: [
       {
         environment: 'pr-2/app1',
@@ -184,7 +190,7 @@ test('any failed', () => {
 
 test('all active', () => {
   expect(
-    aggregate({
+    rollupDeployments({
       repository: {
         object: {
           __typename: 'Commit',
@@ -216,11 +222,13 @@ test('all active', () => {
         cost: 1,
       },
     }),
-  ).toStrictEqual<Outputs>({
-    progressing: false,
-    failed: false,
-    completed: true,
-    succeeded: true,
+  ).toStrictEqual<Rollup>({
+    conclusion: {
+      progressing: false,
+      failed: false,
+      completed: true,
+      succeeded: true,
+    },
     deployments: [
       {
         environment: 'pr-727/app1',

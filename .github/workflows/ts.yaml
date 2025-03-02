@@ -56,7 +56,7 @@ jobs:
         with:
           environment-suffix: /app3
 
-  e2e-test:
+  create-deployment-statuses:
     needs: create-deployments
     runs-on: ubuntu-latest
     timeout-minutes: 10
@@ -99,7 +99,7 @@ jobs:
               log_url: `https://argocd.example.com/pr-${context.issue.number}--app3`,
             })
 
-  e2e-test-wait:
+  wait-for-deployment:
     needs: create-deployments
     runs-on: ubuntu-latest
     timeout-minutes: 10

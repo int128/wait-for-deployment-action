@@ -1,8 +1,8 @@
 import * as core from '@actions/core'
 import * as github from './github.js'
-import { waitForDeployments } from './wait.js'
-import { Deployment } from './aggregate.js'
-import { DeploymentState } from './generated/graphql-types.js'
+import { getListDeploymentsQuery } from './queries/listDeployments.js'
+import { formatDeploymentState, Rollup, RollupConclusion, rollupDeployments } from './deployments.js'
+import { sleep, startTimer } from './timer.js'
 
 type Inputs = {
   until: 'completed' | 'succeeded'
@@ -17,24 +17,79 @@ type Inputs = {
 }
 
 type Outputs = {
-  progressing: boolean
-  succeeded: boolean
-  failed: boolean
-  completed: boolean
+  conclusion: RollupConclusion
   summary: string
 }
 
 export const run = async (inputs: Inputs): Promise<Outputs> => {
-  const octokit = github.getOctokit(inputs.token)
-  core.info(`Waiting for deployments until the status is ${inputs.until}`)
-  const outputs = await waitForDeployments(octokit, inputs)
-  const summary = formatSummary(outputs.deployments)
+  core.info(`Target commit: ${inputs.deploymentSha}`)
+  core.info(`Waiting until the status is ${inputs.until}`)
+  const rollup = await poll(inputs)
+  const summary = formatSummaryOutput(rollup)
+  core.info(`----`)
+  writeDeploymentsLog(rollup)
+  core.info(`----`)
 
-  if (inputs.until === 'succeeded' && outputs.failed) {
+  if (inputs.until === 'succeeded' && rollup.conclusion.failed) {
     core.setFailed(`Some deployment has failed. See ${inputs.workflowURL} for the summary.`)
-    return { ...outputs, summary }
+    return { conclusion: rollup.conclusion, summary }
   }
 
+  await writeDeploymentsSummary(rollup)
+  core.info(`You can see the summary at ${inputs.workflowURL}`)
+  return { conclusion: rollup.conclusion, summary }
+}
+
+const formatSummaryOutput = (rollup: Rollup) =>
+  rollup.deployments
+    .map((deployment) => {
+      const environmentLink = toMarkdownLink(deployment.environment, deployment.url)
+      const decoratedState = formatDeploymentState(deployment.state)
+      return `- ${environmentLink}: ${decoratedState}: ${deployment.description ?? ''}`
+    })
+    .join('\n')
+
+const poll = async (inputs: Inputs): Promise<Rollup> => {
+  const octokit = github.getOctokit(inputs.token)
+  const timer = startTimer()
+  core.info(`Waiting for initial delay ${inputs.initialDelaySeconds}s`)
+  await sleep(inputs.initialDelaySeconds * 1000)
+
+  for (;;) {
+    core.startGroup(`GraphQL request`)
+    const deployments = await getListDeploymentsQuery(octokit, {
+      owner: inputs.owner,
+      name: inputs.repo,
+      expression: inputs.deploymentSha,
+    })
+    core.endGroup()
+
+    const rollup = rollupDeployments(deployments)
+    if (rollup.conclusion.completed) {
+      return rollup
+    }
+
+    core.startGroup(`Current deployments`)
+    writeDeploymentsLog(rollup)
+    core.endGroup()
+
+    const elapsedSec = timer.elapsedSeconds()
+    if (inputs.timeoutSeconds && elapsedSec > inputs.timeoutSeconds) {
+      core.info(`Timed out (elapsed ${elapsedSec}s > timeout ${inputs.timeoutSeconds}s)`)
+      return rollup
+    }
+    core.info(`Waiting for ${inputs.periodSeconds}s`)
+    await sleep(inputs.periodSeconds * 1000)
+  }
+}
+
+const writeDeploymentsLog = (rollup: Rollup) => {
+  for (const deployment of rollup.deployments) {
+    core.info(`- ${deployment.environment}: ${deployment.state}: ${deployment.description ?? ''}`)
+  }
+}
+
+const writeDeploymentsSummary = async (rollup: Rollup) => {
   core.summary.addHeading('wait-for-deployment summary', 2)
   core.summary.addTable([
     [
@@ -42,40 +97,13 @@ export const run = async (inputs: Inputs): Promise<Outputs> => {
       { data: 'State', header: true },
       { data: 'Description', header: true },
     ],
-    ...outputs.deployments.map((deployment) => [
+    ...rollup.deployments.map((deployment) => [
       toHtmlLink(deployment.environment, deployment.url),
-      toDecoratedState(deployment.state),
+      formatDeploymentState(deployment.state),
       deployment.description ?? '',
     ]),
   ])
   await core.summary.write()
-  core.info(`You can see the summary at ${inputs.workflowURL}`)
-  return { ...outputs, summary }
-}
-
-const formatSummary = (deployments: Deployment[]) =>
-  deployments
-    .map((deployment) => {
-      const environmentLink = toMarkdownLink(deployment.environment, deployment.url)
-      const decoratedState = toDecoratedState(deployment.state)
-      return `- ${environmentLink}: ${decoratedState}: ${deployment.description ?? ''}`
-    })
-    .join('\n')
-
-const toDecoratedState = (state: DeploymentState): string => {
-  switch (state) {
-    case DeploymentState.Queued:
-    case DeploymentState.InProgress:
-      return `:rocket: ${state}`
-    case DeploymentState.Failure:
-    case DeploymentState.Error:
-      return `:x: ${state}`
-    case DeploymentState.Active:
-    case DeploymentState.Success:
-      return `:white_check_mark: ${state}`
-    default:
-      return state
-  }
 }
 
 const toMarkdownLink = (s: string, url: string | null | undefined) => {

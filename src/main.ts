@@ -14,12 +14,19 @@ const main = async (): Promise<void> => {
     token: core.getInput('token', { required: true }),
     workflowURL: `${github.context.serverUrl}/${github.context.repo.owner}/${github.context.repo.repo}/actions/runs/${github.context.runId}`,
   })
-  core.info(`Setting the outputs: ${JSON.stringify(outputs, null, 2)}`)
-  core.setOutput('progressing', outputs.progressing)
-  core.setOutput('succeeded', outputs.succeeded)
-  core.setOutput('failed', outputs.failed)
-  core.setOutput('completed', outputs.completed)
+
+  core.setOutput('progressing', outputs.conclusion.progressing)
+  core.setOutput('succeeded', outputs.conclusion.succeeded)
+  core.setOutput('failed', outputs.conclusion.failed)
+  core.setOutput('completed', outputs.conclusion.completed)
   core.setOutput('summary', outputs.summary)
+
+  core.startGroup('outputs')
+  core.info(JSON.stringify(outputs.conclusion))
+  core.endGroup()
+  core.startGroup('outputs.summary')
+  core.info(outputs.summary)
+  core.endGroup()
 }
 
 const parseUntil = (s: string): 'completed' | 'succeeded' => {

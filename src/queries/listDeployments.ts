@@ -1,3 +1,4 @@
+import assert from 'assert'
 import * as core from '@actions/core'
 import * as github from '../github.js'
 import { ListDeploymentsQuery, ListDeploymentsQueryVariables } from '../generated/graphql.js'
@@ -28,13 +29,14 @@ const query = /* GraphQL */ `
   }
 `
 
-export const listDeployments = async (
+export const getListDeploymentsQuery = async (
   o: github.Octokit,
   v: ListDeploymentsQueryVariables,
-): Promise<ListDeploymentsQuery> =>
-  await core.group('ListDeploymentsQuery', async () => {
-    core.info(JSON.stringify(v))
-    const q: ListDeploymentsQuery = await o.graphql(query, v)
-    core.debug(JSON.stringify(q, undefined, 2))
-    return q
-  })
+): Promise<ListDeploymentsQuery> => {
+  core.info(`Calling ListDeployments(${JSON.stringify(v)})`)
+  const q: ListDeploymentsQuery = await o.graphql(query, v)
+  assert(q.rateLimit != null)
+  core.info(`GitHub API rate limit is ${JSON.stringify(q.rateLimit)}`)
+  core.debug(JSON.stringify(q, undefined, 2))
+  return q
+}
