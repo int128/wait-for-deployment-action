@@ -10,14 +10,14 @@ inputs:
     required: true
     default: '10'
   period-seconds:
-    description: Polling period in seconds
+    description: Polling interval in seconds
     required: true
     default: '15'
   timeout-seconds:
     description: If set, poll until the timeout
     required: false
   deployment-sha:
-    description: Find deployments by commit
+    description: Find the deployments of the commit
     required: true
   token:
     description: GitHub token

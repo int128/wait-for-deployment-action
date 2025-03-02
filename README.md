@@ -4,7 +4,7 @@ This is an action to wait for the GitHub Deployment.
 
 ## Getting Started
 
-To post a comment when all deployments are succeeded,
+To create a comment when all deployments are succeeded,
 
 ```yaml
 name: wait-for-deployment-succeeded
@@ -25,53 +25,91 @@ jobs:
       - uses: int128/comment-action@v1
         with:
           post: |
-            ## Deploy succeeded
+            ## Deployed successfully
             ${{ steps.deployment.outputs.summary }}
 ```
 
-### Condition
+To create a comment when all deployments are completed or timed out,
+
+```yaml
+name: wait-for-deployment-succeeded
+
+on:
+  pull_request:
+
+jobs:
+  notify:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: int128/wait-for-deployment-action@v1
+        id: deployment
+        with:
+          timeout-seconds: 300
+          until: completed
+          deployment-sha: ${{ github.event.pull_request.head.sha || github.sha }}
+      - if: steps.deployment.outputs.succeeded == 'true'
+        uses: int128/comment-action@v1
+        with:
+          post: |
+            ## :white_check_mark: Deployed successfully
+            ${{ steps.deployment.outputs.summary }}
+      - if: steps.deployment.outputs.progressing == 'true'
+        uses: int128/comment-action@v1
+        with:
+          post: |
+            ## :construction: Deployment is in progress
+            ${{ steps.deployment.outputs.summary }}
+      - if: steps.deployment.outputs.failed == 'true'
+        uses: int128/comment-action@v1
+        with:
+          post: |
+            ## :x: Deployment failed
+            ${{ steps.deployment.outputs.summary }}
+```
+
+### Wait for the condition
 
 If `until` is set to `succeeded`,
 
 - When **all** deployments are succeeded, this action exits successfully.
 - When **any** deployment is failed, this action exits with an error.
 
-If `until` is set to `completed`, this action exits when all deployments are completed.
+If `until` is set to `completed`,
 
-### Timeout
+- When **all** deployments are completed, this action exits successfully.
+
+### Set a timeout
 
 If `timeout-seconds` is set, this action stops after the timeout.
-This action exits successfully even if any deployment is not completed.
-
-If both `timeout-seconds` and `until: succeeded` is set, and when any deployment is failed,
-this action exits with an error after the timeout.
+This action determines the exit code based on the condition at the timeout.
 
 ## Specification
 
-This action determines the status as below table.
+This action determines the outputs as below table.
 
 | GitHub deployment status | Progressing | Succeeded | Failed | Completed |
 | ------------------------ | ----------- | --------- | ------ | --------- |
-| `queued`                 | x           | -         | -      | -         |
-| `in_progress`            | x           | -         | -      | -         |
-| `active`                 | -           | x         | -      | x         |
-| `success`                | -           | x         | -      | x         |
-| `failure`                | -           | -         | x      | x         |
-| `error`                  | -           | -         | x      | x         |
+| QUEUED                   | x           | -         | -      | -         |
+| IN_PROGRESS              | x           | -         | -      | -         |
+| ACTIVE                   | -           | x         | -      | x         |
+| SUCCESS                  | -           | x         | -      | x         |
+| FAILURE                  | -           | -         | x      | x         |
+| ERROR                    | -           | -         | x      | x         |
 | Others                   | -           | -         | -      | -         |
 
 x: This action maps the GitHub deployment status to the corresponding column.
 
 ### Inputs
 
-| Name                    | Default        | Description                       |
-| ----------------------- | -------------- | --------------------------------- |
-| `until`                 | (required)     | Either `completed` or `succeeded` |
-| `initial-delay-seconds` | 10             | Initial delay before polling      |
-| `period-seconds`        | 15             | Polling period                    |
-| `timeout-seconds`       | -              | If set, poll until the timeout    |
-| `deployment-sha`        | (required)     | Find deployments by commit        |
-| `token`                 | `github.token` | GitHub token                      |
+| Name                    | Default        | Description                             |
+| ----------------------- | -------------- | --------------------------------------- |
+| `until`                 | (required)     | Either `completed` or `succeeded`       |
+| `initial-delay-seconds` | 10             | Initial delay before polling in seconds |
+| `period-seconds`        | 15             | Polling interval in seconds             |
+| `timeout-seconds`       | -              | If set, poll until the timeout          |
+| `deployment-sha`        | (required)     | Find the deployments of the commit      |
+| `token`                 | `github.token` | GitHub token                            |
 
 ### Outputs
 
@@ -81,4 +119,4 @@ x: This action maps the GitHub deployment status to the corresponding column.
 | `succeeded`   | true if all deployments are succeeded |
 | `failed`      | true if any deployment is failed      |
 | `completed`   | true if all deployments are completed |
-| `summary`     | markdown list of all deployments      |
+| `summary`     | Markdown list of all deployments      |
