@@ -2,6 +2,7 @@ import * as core from '@actions/core'
 import * as github from './github.js'
 import { getListDeploymentsQuery } from './queries/listDeployments.js'
 import { Deployment, formatDeploymentState, Rollup, RollupConclusion, rollupDeployments } from './deployments.js'
+import { sleep, startTimer } from './timer.js'
 
 type Inputs = {
   until: 'completed' | 'succeeded'
@@ -22,9 +23,9 @@ type Outputs = {
 
 export const run = async (inputs: Inputs): Promise<Outputs> => {
   core.info(`Target commit: ${inputs.deploymentSha}`)
-  core.info(`Waiting for deployments until the status is ${inputs.until}`)
+  core.info(`Waiting until the status is ${inputs.until}`)
   const rollup = await poll(inputs)
-  const summary = formatSummaryOutput(rollup.deployments)
+  const summary = formatSummaryOutput(rollup)
   core.info(`----`)
   writeDeploymentsLog(rollup)
   core.info(`----`)
@@ -39,8 +40,8 @@ export const run = async (inputs: Inputs): Promise<Outputs> => {
   return { conclusion: rollup.conclusion, summary }
 }
 
-const formatSummaryOutput = (deployments: Deployment[]) =>
-  deployments
+const formatSummaryOutput = (rollup: Rollup) =>
+  rollup.deployments
     .map((deployment) => {
       const environmentLink = toMarkdownLink(deployment.environment, deployment.url)
       const decoratedState = formatDeploymentState(deployment.state)
@@ -50,7 +51,7 @@ const formatSummaryOutput = (deployments: Deployment[]) =>
 
 const poll = async (inputs: Inputs): Promise<Rollup> => {
   const octokit = github.getOctokit(inputs.token)
-  const startedAt = Date.now()
+  const timer = startTimer()
   core.info(`Waiting for initial delay ${inputs.initialDelaySeconds}s`)
   await sleep(inputs.initialDelaySeconds * 1000)
 
@@ -72,12 +73,12 @@ const poll = async (inputs: Inputs): Promise<Rollup> => {
     writeDeploymentsLog(rollup)
     core.endGroup()
 
-    const elapsedSec = Math.floor((Date.now() - startedAt) / 1000)
+    const elapsedSec = timer.elapsedSeconds()
     if (inputs.timeoutSeconds && elapsedSec > inputs.timeoutSeconds) {
       core.info(`Timed out (elapsed ${elapsedSec}s > timeout ${inputs.timeoutSeconds}s)`)
       return rollup
     }
-    core.info(`Waiting for period ${inputs.periodSeconds}s`)
+    core.info(`Waiting for ${inputs.periodSeconds}s`)
     await sleep(inputs.periodSeconds * 1000)
   }
 }
@@ -118,5 +119,3 @@ const toHtmlLink = (s: string, url: string | null | undefined) => {
   }
   return `<a href="${url}">${s}</a>`
 }
-
-const sleep = (ms: number) => new Promise((resolve) => setTimeout(resolve, ms))
