@@ -49,9 +49,14 @@ export const run = async (inputs: Inputs): Promise<Outputs> => {
 const formatSummaryOutput = (rollup: Rollup) =>
   rollup.deployments
     .map((deployment) => {
-      const environmentLink = toMarkdownLink(deployment.environment, deployment.url)
-      const state = formatDeploymentStateMarkdown(deployment.state)
-      return `- ${environmentLink}: ${state}: ${deployment.description ?? ''}`
+      const columns = [
+        toMarkdownLink(deployment.environment, deployment.url),
+        formatDeploymentStateMarkdown(deployment.state),
+      ]
+      if (deployment.description) {
+        columns.push(deployment.description)
+      }
+      return `- ${columns.join(': ')}`
     })
     .join('\n')
 
@@ -91,9 +96,11 @@ const poll = async (inputs: Inputs): Promise<Rollup> => {
 
 const writeDeploymentsLog = (rollup: Rollup) => {
   for (const deployment of rollup.deployments) {
-    core.info(
-      `${formatDeploymentStateEmoji(deployment.state)}: ${deployment.environment}: ${deployment.description ?? ''}`,
-    )
+    const columns = [deployment.environment, formatDeploymentStateEmoji(deployment.state)]
+    if (deployment.description) {
+      columns.push(deployment.description)
+    }
+    core.info(columns.join(': '))
   }
 }
 
