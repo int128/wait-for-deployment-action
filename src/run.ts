@@ -4,11 +4,13 @@ import { getListDeploymentsQuery } from './queries/listDeployments.js'
 import {
   formatDeploymentStateEmoji,
   formatDeploymentStateMarkdown,
+  isDeploymentCompleted,
   Rollup,
   RollupConclusion,
   rollupDeployments,
 } from './deployments.js'
 import { sleep, startTimer } from './timer.js'
+import { DeploymentStatusState } from './generated/graphql-types.js'
 
 type Inputs = {
   until: 'completed' | 'succeeded'
@@ -80,7 +82,8 @@ const poll = async (inputs: Inputs): Promise<Rollup> => {
       return rollup
     }
 
-    core.startGroup(`Current deployments`)
+    const completedCount = rollup.deployments.filter((deployment) => isDeploymentCompleted(deployment.state)).length
+    core.startGroup(`Current deployments: ${completedCount} / ${rollup.deployments.length} completed`)
     writeDeploymentsLog(rollup)
     core.endGroup()
 
