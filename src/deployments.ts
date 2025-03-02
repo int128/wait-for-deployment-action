@@ -3,11 +3,15 @@ import { ListDeploymentsQuery } from './generated/graphql.js'
 import { DeploymentState } from './generated/graphql-types.js'
 
 export type Rollup = {
+  conclusion: RollupConclusion
+  deployments: Deployment[]
+}
+
+export type RollupConclusion = {
   progressing: boolean
   failed: boolean
   completed: boolean
   succeeded: boolean
-  deployments: Deployment[]
 }
 
 export type Deployment = {
@@ -57,10 +61,12 @@ export const rollupDeployments = (q: ListDeploymentsQuery): Rollup => {
   })
 
   return {
-    progressing,
-    failed,
-    completed,
-    succeeded,
+    conclusion: {
+      progressing,
+      failed,
+      completed,
+      succeeded,
+    },
     deployments,
   }
 }

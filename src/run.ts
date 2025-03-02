@@ -1,7 +1,7 @@
 import * as core from '@actions/core'
 import * as github from './github.js'
 import { getListDeploymentsQuery } from './queries/listDeployments.js'
-import { Deployment, formatDeploymentState, Rollup, rollupDeployments } from './deployments.js'
+import { Deployment, formatDeploymentState, Rollup, RollupConclusion, rollupDeployments } from './deployments.js'
 
 type Inputs = {
   until: 'completed' | 'succeeded'
@@ -16,26 +16,27 @@ type Inputs = {
 }
 
 type Outputs = {
-  progressing: boolean
-  succeeded: boolean
-  failed: boolean
-  completed: boolean
+  conclusion: RollupConclusion
   summary: string
 }
 
 export const run = async (inputs: Inputs): Promise<Outputs> => {
+  core.info(`Target commit: ${inputs.deploymentSha}`)
   core.info(`Waiting for deployments until the status is ${inputs.until}`)
   const rollup = await poll(inputs)
   const summary = formatSummaryOutput(rollup.deployments)
+  core.info(`----`)
+  writeDeploymentsLog(rollup)
+  core.info(`----`)
 
-  if (inputs.until === 'succeeded' && rollup.failed) {
+  if (inputs.until === 'succeeded' && rollup.conclusion.failed) {
     core.setFailed(`Some deployment has failed. See ${inputs.workflowURL} for the summary.`)
-    return { ...rollup, summary }
+    return { conclusion: rollup.conclusion, summary }
   }
 
   await writeDeploymentsSummary(rollup)
   core.info(`You can see the summary at ${inputs.workflowURL}`)
-  return { ...rollup, summary }
+  return { conclusion: rollup.conclusion, summary }
 }
 
 const formatSummaryOutput = (deployments: Deployment[]) =>
@@ -63,7 +64,7 @@ const poll = async (inputs: Inputs): Promise<Rollup> => {
     core.endGroup()
 
     const rollup = rollupDeployments(deployments)
-    if (rollup.completed) {
+    if (rollup.conclusion.completed) {
       return rollup
     }
 
