@@ -1,7 +1,7 @@
 import * as core from '@actions/core'
 import * as github from './github.js'
 import { getListDeploymentsQuery } from './queries/listDeployments.js'
-import { Deployment, formatDeploymentState, Rollup, RollupConclusion, rollupDeployments } from './deployments.js'
+import { formatDeploymentState, Rollup, RollupConclusion, rollupDeployments } from './deployments.js'
 import { sleep, startTimer } from './timer.js'
 
 type Inputs = {
