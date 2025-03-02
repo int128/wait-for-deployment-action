@@ -1,7 +1,13 @@
 import * as core from '@actions/core'
 import * as github from './github.js'
 import { getListDeploymentsQuery } from './queries/listDeployments.js'
-import { formatDeploymentState, Rollup, RollupConclusion, rollupDeployments } from './deployments.js'
+import {
+  formatDeploymentStateEmoji,
+  formatDeploymentStateMarkdown,
+  Rollup,
+  RollupConclusion,
+  rollupDeployments,
+} from './deployments.js'
 import { sleep, startTimer } from './timer.js'
 
 type Inputs = {
@@ -44,8 +50,8 @@ const formatSummaryOutput = (rollup: Rollup) =>
   rollup.deployments
     .map((deployment) => {
       const environmentLink = toMarkdownLink(deployment.environment, deployment.url)
-      const decoratedState = formatDeploymentState(deployment.state)
-      return `- ${environmentLink}: ${decoratedState}: ${deployment.description ?? ''}`
+      const state = formatDeploymentStateMarkdown(deployment.state)
+      return `- ${environmentLink}: ${state}: ${deployment.description ?? ''}`
     })
     .join('\n')
 
@@ -85,7 +91,9 @@ const poll = async (inputs: Inputs): Promise<Rollup> => {
 
 const writeDeploymentsLog = (rollup: Rollup) => {
   for (const deployment of rollup.deployments) {
-    core.info(`- ${deployment.environment}: ${deployment.state}: ${deployment.description ?? ''}`)
+    core.info(
+      `${formatDeploymentStateEmoji(deployment.state)}: ${deployment.environment}: ${deployment.description ?? ''}`,
+    )
   }
 }
 
@@ -93,13 +101,13 @@ const writeDeploymentsSummary = async (rollup: Rollup) => {
   core.summary.addHeading('wait-for-deployment summary', 2)
   core.summary.addTable([
     [
-      { data: 'Environment', header: true },
       { data: 'State', header: true },
+      { data: 'Environment', header: true },
       { data: 'Description', header: true },
     ],
     ...rollup.deployments.map((deployment) => [
+      formatDeploymentStateMarkdown(deployment.state),
       toHtmlLink(deployment.environment, deployment.url),
-      formatDeploymentState(deployment.state),
       deployment.description ?? '',
     ]),
   ])
