@@ -29,7 +29,7 @@ const query = /* GraphQL */ `
   }
 `
 
-export const listDeployments = async (
+export const getListDeploymentsQuery = async (
   o: github.Octokit,
   v: ListDeploymentsQueryVariables,
 ): Promise<ListDeploymentsQuery> => {

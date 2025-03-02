@@ -1,7 +1,7 @@
 import * as core from '@actions/core'
 import * as github from './github.js'
-import { waitForDeployments } from './wait.js'
-import { Deployment, formatDeploymentState, Rollup } from './deployments.js'
+import { getListDeploymentsQuery } from './queries/listDeployments.js'
+import { Deployment, formatDeploymentState, Rollup, rollupDeployments } from './deployments.js'
 
 type Inputs = {
   until: 'completed' | 'succeeded'
@@ -24,9 +24,8 @@ type Outputs = {
 }
 
 export const run = async (inputs: Inputs): Promise<Outputs> => {
-  const octokit = github.getOctokit(inputs.token)
   core.info(`Waiting for deployments until the status is ${inputs.until}`)
-  const rollup = await waitForDeployments(octokit, inputs)
+  const rollup = await poll(inputs)
   const summary = formatSummaryOutput(rollup.deployments)
 
   if (inputs.until === 'succeeded' && rollup.failed) {
@@ -34,7 +33,7 @@ export const run = async (inputs: Inputs): Promise<Outputs> => {
     return { ...rollup, summary }
   }
 
-  await writeDeploymentSummary(rollup)
+  await writeDeploymentsSummary(rollup)
   core.info(`You can see the summary at ${inputs.workflowURL}`)
   return { ...rollup, summary }
 }
@@ -48,7 +47,47 @@ const formatSummaryOutput = (deployments: Deployment[]) =>
     })
     .join('\n')
 
-const writeDeploymentSummary = async (rollup: Rollup) => {
+const poll = async (inputs: Inputs): Promise<Rollup> => {
+  const octokit = github.getOctokit(inputs.token)
+  const startedAt = Date.now()
+  core.info(`Waiting for initial delay ${inputs.initialDelaySeconds}s`)
+  await sleep(inputs.initialDelaySeconds * 1000)
+
+  for (;;) {
+    core.startGroup(`GraphQL request`)
+    const deployments = await getListDeploymentsQuery(octokit, {
+      owner: inputs.owner,
+      name: inputs.repo,
+      expression: inputs.deploymentSha,
+    })
+    core.endGroup()
+
+    const rollup = rollupDeployments(deployments)
+    if (rollup.completed) {
+      return rollup
+    }
+
+    core.startGroup(`Current deployments`)
+    writeDeploymentsLog(rollup)
+    core.endGroup()
+
+    const elapsedSec = Math.floor((Date.now() - startedAt) / 1000)
+    if (inputs.timeoutSeconds && elapsedSec > inputs.timeoutSeconds) {
+      core.info(`Timed out (elapsed ${elapsedSec}s > timeout ${inputs.timeoutSeconds}s)`)
+      return rollup
+    }
+    core.info(`Waiting for period ${inputs.periodSeconds}s`)
+    await sleep(inputs.periodSeconds * 1000)
+  }
+}
+
+const writeDeploymentsLog = (rollup: Rollup) => {
+  for (const deployment of rollup.deployments) {
+    core.info(`- ${deployment.environment}: ${deployment.state}: ${deployment.description ?? ''}`)
+  }
+}
+
+const writeDeploymentsSummary = async (rollup: Rollup) => {
   core.summary.addHeading('wait-for-deployment summary', 2)
   core.summary.addTable([
     [
@@ -78,3 +117,5 @@ const toHtmlLink = (s: string, url: string | null | undefined) => {
   }
   return `<a href="${url}">${s}</a>`
 }
+
+const sleep = (ms: number) => new Promise((resolve) => setTimeout(resolve, ms))
