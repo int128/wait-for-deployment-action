@@ -40,13 +40,7 @@ export const rollupDeployments = (q: ListDeploymentsQuery): Rollup => {
     (node) => node.state === DeploymentState.Active || node.state === DeploymentState.Success,
   )
   const failed = nodes.some((node) => node.state === DeploymentState.Failure || node.state === DeploymentState.Error)
-  const completed = nodes.every(
-    (node) =>
-      node.state === DeploymentState.Active ||
-      node.state === DeploymentState.Success ||
-      node.state === DeploymentState.Failure ||
-      node.state === DeploymentState.Error,
-  )
+  const completed = nodes.every((node) => isDeploymentCompleted(node.state))
 
   const deployments = nodes.map<Deployment>((node) => {
     assert(node.environment != null)
@@ -70,6 +64,12 @@ export const rollupDeployments = (q: ListDeploymentsQuery): Rollup => {
     deployments,
   }
 }
+
+export const isDeploymentCompleted = (state: DeploymentState | null | undefined) =>
+  state === DeploymentState.Active ||
+  state === DeploymentState.Success ||
+  state === DeploymentState.Failure ||
+  state === DeploymentState.Error
 
 export const formatDeploymentStateMarkdown = (state: DeploymentState): string => {
   switch (state) {

@@ -1,14 +1,15 @@
 import * as core from '@actions/core'
 import * as github from './github.js'
 import { getListDeploymentsQuery } from './queries/listDeployments.js'
+import { sleep, startTimer } from './timer.js'
 import {
   formatDeploymentStateEmoji,
   formatDeploymentStateMarkdown,
+  isDeploymentCompleted,
   Rollup,
   RollupConclusion,
   rollupDeployments,
 } from './deployments.js'
-import { sleep, startTimer } from './timer.js'
 
 type Inputs = {
   until: 'completed' | 'succeeded'
@@ -80,7 +81,8 @@ const poll = async (inputs: Inputs): Promise<Rollup> => {
       return rollup
     }
 
-    core.startGroup(`Current deployments`)
+    const completedCount = rollup.deployments.filter((deployment) => isDeploymentCompleted(deployment.state)).length
+    core.startGroup(`Current deployments: ${completedCount} / ${rollup.deployments.length} completed`)
     writeDeploymentsLog(rollup)
     core.endGroup()
 
@@ -106,6 +108,20 @@ const writeDeploymentsLog = (rollup: Rollup) => {
 
 const writeDeploymentsSummary = async (rollup: Rollup) => {
   core.summary.addHeading('wait-for-deployment summary', 2)
+  const conclusions = []
+  if (rollup.conclusion.progressing) {
+    conclusions.push('progressing')
+  }
+  if (rollup.conclusion.succeeded) {
+    conclusions.push('succeeded')
+  }
+  if (rollup.conclusion.failed) {
+    conclusions.push('failed')
+  }
+  if (rollup.conclusion.completed) {
+    conclusions.push('completed')
+  }
+  core.summary.addRaw(`<p>Rollup conclusion: ${conclusions.join(', ')}</p>`)
   core.summary.addTable([
     [
       { data: 'Environment', header: true },
