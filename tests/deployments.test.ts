@@ -37,10 +37,12 @@ test('all pending', () => {
       },
     }),
   ).toStrictEqual<Rollup>({
-    progressing: false,
-    failed: false,
-    completed: false,
-    succeeded: false,
+    conclusion: {
+      progressing: false,
+      failed: false,
+      completed: false,
+      succeeded: false,
+    },
     deployments: [
       {
         environment: 'pr-2/app1',
@@ -96,10 +98,12 @@ test('progressing', () => {
       },
     }),
   ).toStrictEqual<Rollup>({
-    progressing: true,
-    failed: false,
-    completed: false,
-    succeeded: false,
+    conclusion: {
+      progressing: true,
+      failed: false,
+      completed: false,
+      succeeded: false,
+    },
     deployments: [
       {
         environment: 'pr-2/app1',
@@ -155,10 +159,12 @@ test('any failed', () => {
       },
     }),
   ).toStrictEqual<Rollup>({
-    progressing: true,
-    failed: true,
-    completed: false,
-    succeeded: false,
+    conclusion: {
+      progressing: true,
+      failed: true,
+      completed: false,
+      succeeded: false,
+    },
     deployments: [
       {
         environment: 'pr-2/app1',
@@ -217,10 +223,12 @@ test('all active', () => {
       },
     }),
   ).toStrictEqual<Rollup>({
-    progressing: false,
-    failed: false,
-    completed: true,
-    succeeded: true,
+    conclusion: {
+      progressing: false,
+      failed: false,
+      completed: true,
+      succeeded: true,
+    },
     deployments: [
       {
         environment: 'pr-727/app1',
