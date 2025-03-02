@@ -1,6 +1,7 @@
 import * as core from '@actions/core'
 import * as github from './github.js'
 import { getListDeploymentsQuery } from './queries/listDeployments.js'
+import { sleep, startTimer } from './timer.js'
 import {
   formatDeploymentStateEmoji,
   formatDeploymentStateMarkdown,
@@ -9,8 +10,6 @@ import {
   RollupConclusion,
   rollupDeployments,
 } from './deployments.js'
-import { sleep, startTimer } from './timer.js'
-import { DeploymentStatusState } from './generated/graphql-types.js'
 
 type Inputs = {
   until: 'completed' | 'succeeded'
