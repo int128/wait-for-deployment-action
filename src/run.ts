@@ -101,13 +101,13 @@ const writeDeploymentsSummary = async (rollup: Rollup) => {
   core.summary.addHeading('wait-for-deployment summary', 2)
   core.summary.addTable([
     [
-      { data: 'State', header: true },
       { data: 'Environment', header: true },
+      { data: 'State', header: true },
       { data: 'Description', header: true },
     ],
     ...rollup.deployments.map((deployment) => [
-      formatDeploymentStateMarkdown(deployment.state),
       toHtmlLink(deployment.environment, deployment.url),
+      formatDeploymentStateMarkdown(deployment.state),
       deployment.description ?? '',
     ]),
   ])
