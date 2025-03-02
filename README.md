@@ -52,7 +52,7 @@ jobs:
         uses: int128/comment-action@v1
         with:
           post: |
-            ## Deployed successfully
+            ## :white_check_mark: Deployed successfully
             ${{ steps.deployment.outputs.summary }}
       - if: steps.deployment.outputs.progressing == 'true'
         uses: int128/comment-action@v1
