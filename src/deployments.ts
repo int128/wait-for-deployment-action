@@ -71,7 +71,7 @@ export const rollupDeployments = (q: ListDeploymentsQuery): Rollup => {
   }
 }
 
-export const formatDeploymentState = (state: DeploymentState): string => {
+export const formatDeploymentStateMarkdown = (state: DeploymentState): string => {
   switch (state) {
     case DeploymentState.Queued:
     case DeploymentState.InProgress:
@@ -82,6 +82,22 @@ export const formatDeploymentState = (state: DeploymentState): string => {
     case DeploymentState.Active:
     case DeploymentState.Success:
       return `:white_check_mark: ${state}`
+    default:
+      return state
+  }
+}
+
+export const formatDeploymentStateEmoji = (state: DeploymentState): string => {
+  switch (state) {
+    case DeploymentState.Queued:
+    case DeploymentState.InProgress:
+      return `🚀 ${state}`
+    case DeploymentState.Failure:
+    case DeploymentState.Error:
+      return `❌ ${state}`
+    case DeploymentState.Active:
+    case DeploymentState.Success:
+      return `✅ ${state}`
     default:
       return state
   }

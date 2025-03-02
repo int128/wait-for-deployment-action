@@ -22,7 +22,7 @@ const main = async (): Promise<void> => {
   core.setOutput('summary', outputs.summary)
 
   core.startGroup('outputs')
-  core.info(JSON.stringify(outputs.conclusion))
+  core.info(JSON.stringify(outputs.conclusion, undefined, 2))
   core.endGroup()
   core.startGroup('outputs.summary')
   core.info(outputs.summary)
