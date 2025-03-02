@@ -2,7 +2,7 @@ import assert from 'assert'
 import { ListDeploymentsQuery } from './generated/graphql.js'
 import { DeploymentState } from './generated/graphql-types.js'
 
-export type Outputs = {
+export type Rollup = {
   progressing: boolean
   failed: boolean
   completed: boolean
@@ -17,7 +17,7 @@ export type Deployment = {
   description: string | undefined
 }
 
-export const aggregate = (q: ListDeploymentsQuery): Outputs => {
+export const rollupDeployments = (q: ListDeploymentsQuery): Rollup => {
   assert(q.repository != null)
   assert(q.repository.object != null)
   assert.strictEqual(q.repository.object.__typename, 'Commit')
@@ -62,5 +62,21 @@ export const aggregate = (q: ListDeploymentsQuery): Outputs => {
     completed,
     succeeded,
     deployments,
+  }
+}
+
+export const formatDeploymentState = (state: DeploymentState): string => {
+  switch (state) {
+    case DeploymentState.Queued:
+    case DeploymentState.InProgress:
+      return `:rocket: ${state}`
+    case DeploymentState.Failure:
+    case DeploymentState.Error:
+      return `:x: ${state}`
+    case DeploymentState.Active:
+    case DeploymentState.Success:
+      return `:white_check_mark: ${state}`
+    default:
+      return state
   }
 }

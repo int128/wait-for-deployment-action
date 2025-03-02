@@ -1,7 +1,7 @@
 import * as core from '@actions/core'
 import * as github from './github.js'
 import { listDeployments } from './queries/listDeployments.js'
-import { aggregate, Deployment } from './aggregate.js'
+import { rollupDeployments, Deployment, Rollup } from './deployments.js'
 
 type Inputs = {
   initialDelaySeconds: number
@@ -12,15 +12,7 @@ type Inputs = {
   deploymentSha: string
 }
 
-type Outputs = {
-  progressing: boolean
-  failed: boolean
-  completed: boolean
-  succeeded: boolean
-  deployments: Deployment[]
-}
-
-export const waitForDeployments = async (octokit: github.Octokit, inputs: Inputs): Promise<Outputs> => {
+export const waitForDeployments = async (octokit: github.Octokit, inputs: Inputs): Promise<Rollup> => {
   const startedAt = Date.now()
   core.info(`Waiting for initial delay ${inputs.initialDelaySeconds}s`)
   await sleep(inputs.initialDelaySeconds * 1000)
@@ -31,19 +23,19 @@ export const waitForDeployments = async (octokit: github.Octokit, inputs: Inputs
       name: inputs.repo,
       expression: inputs.deploymentSha,
     })
-    const outputs = aggregate(deployments)
-    if (outputs.completed) {
-      return outputs
+    const rollup = rollupDeployments(deployments)
+    if (rollup.completed) {
+      return rollup
     }
     core.startGroup(`Current deployments`)
-    for (const deployment of outputs.deployments) {
+    for (const deployment of rollup.deployments) {
       core.info(`- ${deployment.environment}: ${deployment.state}: ${deployment.description ?? ''}`)
     }
     core.endGroup()
     const elapsedSec = Math.floor((Date.now() - startedAt) / 1000)
     if (inputs.timeoutSeconds && elapsedSec > inputs.timeoutSeconds) {
       core.info(`Timed out (elapsed ${elapsedSec}s > timeout ${inputs.timeoutSeconds}s)`)
-      return outputs
+      return rollup
     }
     core.info(`Waiting for period ${inputs.periodSeconds}s`)
     await sleep(inputs.periodSeconds * 1000)

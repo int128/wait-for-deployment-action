@@ -1,13 +1,13 @@
-import { aggregate, Outputs } from '../src/aggregate.js'
+import { rollupDeployments, Rollup } from '../src/deployments.js'
 import { DeploymentState } from '../src/generated/graphql-types.js'
 
 test('invalid query', () => {
-  expect(() => aggregate({})).toThrow()
+  expect(() => rollupDeployments({})).toThrow()
 })
 
 test('all pending', () => {
   expect(
-    aggregate({
+    rollupDeployments({
       rateLimit: {
         cost: 1,
       },
@@ -36,7 +36,7 @@ test('all pending', () => {
         },
       },
     }),
-  ).toStrictEqual<Outputs>({
+  ).toStrictEqual<Rollup>({
     progressing: false,
     failed: false,
     completed: false,
@@ -66,7 +66,7 @@ test('all pending', () => {
 
 test('progressing', () => {
   expect(
-    aggregate({
+    rollupDeployments({
       rateLimit: {
         cost: 1,
       },
@@ -95,7 +95,7 @@ test('progressing', () => {
         },
       },
     }),
-  ).toStrictEqual<Outputs>({
+  ).toStrictEqual<Rollup>({
     progressing: true,
     failed: false,
     completed: false,
@@ -125,7 +125,7 @@ test('progressing', () => {
 
 test('any failed', () => {
   expect(
-    aggregate({
+    rollupDeployments({
       rateLimit: {
         cost: 1,
       },
@@ -154,7 +154,7 @@ test('any failed', () => {
         },
       },
     }),
-  ).toStrictEqual<Outputs>({
+  ).toStrictEqual<Rollup>({
     progressing: true,
     failed: true,
     completed: false,
@@ -184,7 +184,7 @@ test('any failed', () => {
 
 test('all active', () => {
   expect(
-    aggregate({
+    rollupDeployments({
       repository: {
         object: {
           __typename: 'Commit',
@@ -216,7 +216,7 @@ test('all active', () => {
         cost: 1,
       },
     }),
-  ).toStrictEqual<Outputs>({
+  ).toStrictEqual<Rollup>({
     progressing: false,
     failed: false,
     completed: true,
