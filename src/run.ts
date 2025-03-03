@@ -32,19 +32,20 @@ export const run = async (inputs: Inputs): Promise<Outputs> => {
   core.info(`Target commit: ${inputs.deploymentSha}`)
   core.info(`Waiting until the status is ${inputs.until}`)
   const rollup = await poll(inputs)
-  const summary = formatSummaryOutput(rollup)
   core.info(`----`)
   writeDeploymentsLog(rollup)
   core.info(`----`)
+  await writeDeploymentsSummary(rollup)
+  core.info(`You can see the summary at ${inputs.workflowURL}`)
 
   if (inputs.until === 'succeeded' && rollup.conclusion.failed) {
     core.setFailed(`Some deployment has failed. See ${inputs.workflowURL} for the summary.`)
-    return { conclusion: rollup.conclusion, summary }
   }
-
-  await writeDeploymentsSummary(rollup)
-  core.info(`You can see the summary at ${inputs.workflowURL}`)
-  return { conclusion: rollup.conclusion, summary }
+  const summary = formatSummaryOutput(rollup)
+  return {
+    conclusion: rollup.conclusion,
+    summary,
+  }
 }
 
 const formatSummaryOutput = (rollup: Rollup) =>
