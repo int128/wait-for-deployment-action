@@ -86,20 +86,6 @@ This action determines the exit code based on the condition at the timeout.
 
 ## Specification
 
-This action determines the outputs as below table.
-
-| GitHub deployment status | Progressing | Succeeded | Failed | Completed |
-| ------------------------ | ----------- | --------- | ------ | --------- |
-| QUEUED                   | x           | -         | -      | -         |
-| IN_PROGRESS              | x           | -         | -      | -         |
-| ACTIVE                   | -           | x         | -      | x         |
-| SUCCESS                  | -           | x         | -      | x         |
-| FAILURE                  | -           | -         | x      | x         |
-| ERROR                    | -           | -         | x      | x         |
-| Others                   | -           | -         | -      | -         |
-
-x: This action maps the GitHub deployment status to the corresponding column.
-
 ### Inputs
 
 | Name                    | Default        | Description                             |
@@ -113,10 +99,24 @@ x: This action maps the GitHub deployment status to the corresponding column.
 
 ### Outputs
 
-| Name          | Description                           |
-| ------------- | ------------------------------------- |
-| `progressing` | true if any deployment is progressing |
-| `succeeded`   | true if all deployments are succeeded |
-| `failed`      | true if any deployment is failed      |
-| `completed`   | true if all deployments are completed |
-| `summary`     | Markdown list of all deployments      |
+| Name          | Description                               |
+| ------------- | ----------------------------------------- |
+| `summary`     | Markdown list of all deployments          |
+| `completed`   | Whether **all** deployments are completed |
+| `succeeded`   | Whether **all** deployments are succeeded |
+| `progressing` | Whether **any** deployment is progressing |
+| `failed`      | Whether **any** deployment is failed      |
+
+This action determines the outputs as below table.
+
+| GitHub deployment state | Progressing | Succeeded | Failed | Completed |
+| ----------------------- | ----------- | --------- | ------ | --------- |
+| QUEUED                  | x           | -         | -      | -         |
+| IN_PROGRESS             | x           | -         | -      | -         |
+| ACTIVE                  | -           | x         | -      | x         |
+| SUCCESS                 | -           | x         | -      | x         |
+| FAILURE                 | -           | -         | x      | x         |
+| ERROR                   | -           | -         | x      | x         |
+| Others                  | -           | -         | -      | -         |
+
+x: This action maps the state of GitHub deployment to the corresponding column.

@@ -8,10 +8,10 @@ export type Rollup = {
 }
 
 export type RollupConclusion = {
-  progressing: boolean
-  failed: boolean
   completed: boolean
   succeeded: boolean
+  progressing: boolean
+  failed: boolean
 }
 
 export type Deployment = {
@@ -21,51 +21,48 @@ export type Deployment = {
   description: string | undefined
 }
 
-export const rollupDeployments = (q: ListDeploymentsQuery): Rollup => {
+const parseListDeploymentsQuery = (q: ListDeploymentsQuery): Deployment[] => {
   assert(q.repository != null)
   assert(q.repository.object != null)
   assert.strictEqual(q.repository.object.__typename, 'Commit')
   assert(q.repository.object.deployments != null)
   assert(q.repository.object.deployments.nodes != null)
-
-  const nodes = q.repository.object.deployments.nodes.map((node) => {
+  return q.repository.object.deployments.nodes.map<Deployment>((node) => {
     assert(node != null)
-    return node
-  })
-
-  const progressing = nodes.some(
-    (node) => node.state === DeploymentState.Queued || node.state === DeploymentState.InProgress,
-  )
-  const succeeded = nodes.every(
-    (node) => node.state === DeploymentState.Active || node.state === DeploymentState.Success,
-  )
-  const failed = nodes.some((node) => node.state === DeploymentState.Failure || node.state === DeploymentState.Error)
-  const completed = nodes.every((node) => isDeploymentCompleted(node.state))
-
-  const deployments = nodes.map<Deployment>((node) => {
     assert(node.environment != null)
     assert(node.state != null)
-    const description = node.latestStatus?.description?.trim()
     return {
       environment: node.environment,
       state: node.state,
       url: node.latestStatus?.logUrl ?? undefined,
-      description: description,
+      description: node.latestStatus?.description?.trim(),
     }
   })
+}
+
+export const rollupDeployments = (q: ListDeploymentsQuery): Rollup => {
+  const deployments = parseListDeploymentsQuery(q)
+
+  const conclusion: RollupConclusion = {
+    completed: deployments.every((deployment) => isDeploymentCompleted(deployment.state)),
+    succeeded: deployments.every(
+      (deployment) => deployment.state === DeploymentState.Active || deployment.state === DeploymentState.Success,
+    ),
+    progressing: deployments.some(
+      (deployment) => deployment.state === DeploymentState.Queued || deployment.state === DeploymentState.InProgress,
+    ),
+    failed: deployments.some(
+      (deployment) => deployment.state === DeploymentState.Failure || deployment.state === DeploymentState.Error,
+    ),
+  }
 
   return {
-    conclusion: {
-      progressing,
-      failed,
-      completed,
-      succeeded,
-    },
+    conclusion,
     deployments,
   }
 }
 
-export const isDeploymentCompleted = (state: DeploymentState | null | undefined) =>
+export const isDeploymentCompleted = (state: DeploymentState) =>
   state === DeploymentState.Active ||
   state === DeploymentState.Success ||
   state === DeploymentState.Failure ||
