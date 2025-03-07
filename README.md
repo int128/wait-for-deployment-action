@@ -109,14 +109,14 @@ This action determines the exit code based on the condition at the timeout.
 
 This action determines the outputs as below table.
 
-| GitHub deployment state | Progressing | Succeeded | Failed | Completed |
-| ----------------------- | ----------- | --------- | ------ | --------- |
-| QUEUED                  | x           | -         | -      | -         |
-| IN_PROGRESS             | x           | -         | -      | -         |
-| ACTIVE                  | -           | x         | -      | x         |
-| SUCCESS                 | -           | x         | -      | x         |
-| FAILURE                 | -           | -         | x      | x         |
-| ERROR                   | -           | -         | x      | x         |
-| Others                  | -           | -         | -      | -         |
+| GitHub deployment state | Completed | Succeeded | Progressing | Failed |
+| ----------------------- | --------- | --------- | ----------- | ------ |
+| QUEUED                  | -         | -         | x           | -      |
+| IN_PROGRESS             | -         | -         | x           | -      |
+| ACTIVE                  | x         | x         | -           | -      |
+| SUCCESS                 | x         | x         | -           | -      |
+| FAILURE                 | x         | -         | -           | x      |
+| ERROR                   | x         | -         | -           | x      |
+| (others)                | -         | -         | -           | -      |
 
 x: This action maps the state of GitHub deployment to the corresponding column.
