@@ -26,15 +26,15 @@ inputs:
 
 outputs:
   progressing:
-    description: true if any deployment is progressing
+    description: Whether any deployment is progressing
   failed:
-    description: true if any deployment is failed
+    description: Whether any deployment is failed
   completed:
-    description: true if all deployments are completed
+    description: Whether all deployments are completed
   succeeded:
-    description: true if all deployments are succeeded
+    description: Whether all deployments are succeeded
   summary:
-    description: markdown list of all deployments
+    description: Markdown list of all deployments
 
 runs:
   using: 'node20'
