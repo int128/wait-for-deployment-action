@@ -40,10 +40,17 @@ const parseListDeploymentsQuery = (q: ListDeploymentsQuery): Deployment[] => {
   })
 }
 
-export const rollupDeployments = (q: ListDeploymentsQuery): Rollup => {
-  const deployments = parseListDeploymentsQuery(q)
+export const rollupDeployments = (query: ListDeploymentsQuery): Rollup => {
+  const deployments = parseListDeploymentsQuery(query)
 
-  const conclusion: RollupConclusion = {
+  return {
+    conclusion: determineRollupConclusion(deployments),
+    deployments,
+  }
+}
+
+export const determineRollupConclusion = (deployments: Deployment[]): RollupConclusion => {
+  return {
     completed: deployments.every((deployment) => isDeploymentCompleted(deployment.state)),
     succeeded: deployments.every(
       (deployment) => deployment.state === DeploymentState.Active || deployment.state === DeploymentState.Success,
@@ -54,11 +61,6 @@ export const rollupDeployments = (q: ListDeploymentsQuery): Rollup => {
     failed: deployments.some(
       (deployment) => deployment.state === DeploymentState.Failure || deployment.state === DeploymentState.Error,
     ),
-  }
-
-  return {
-    conclusion,
-    deployments,
   }
 }
 
