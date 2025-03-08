@@ -1,4 +1,5 @@
 import assert from 'assert'
+import * as minimatch from 'minimatch'
 import { ListDeploymentsQuery } from './generated/graphql.js'
 import { DeploymentState } from './generated/graphql-types.js'
 
@@ -40,8 +41,29 @@ const parseListDeploymentsQuery = (q: ListDeploymentsQuery): Deployment[] => {
   })
 }
 
-export const rollupDeployments = (query: ListDeploymentsQuery): Rollup => {
-  const deployments = parseListDeploymentsQuery(query)
+export type RollupOptions = {
+  filterEnvironments: string[]
+  excludeEnvironments: string[]
+}
+
+export const rollupDeployments = (query: ListDeploymentsQuery, options: RollupOptions): Rollup => {
+  const rawDeployments = parseListDeploymentsQuery(query)
+
+  const excludeEnvironmentMatchers = options.excludeEnvironments.map((pattern) => minimatch.filter(pattern))
+  const filterEnvironmentMatchers = options.filterEnvironments.map((pattern) => minimatch.filter(pattern))
+  const deployments = rawDeployments.filter((deployment) => {
+    if (excludeEnvironmentMatchers.length > 0) {
+      if (excludeEnvironmentMatchers.some((matcher) => matcher(deployment.environment))) {
+        return false
+      }
+    }
+    if (filterEnvironmentMatchers.length > 0) {
+      if (!filterEnvironmentMatchers.some((matcher) => matcher(deployment.environment))) {
+        return false
+      }
+    }
+    return true
+  })
 
   return {
     conclusion: determineRollupConclusion(deployments),

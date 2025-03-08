@@ -4,7 +4,15 @@ import { rollupDeployments, Rollup, determineRollupConclusion } from '../src/dep
 
 describe('rollupDeployments', () => {
   it('throws an error if an invalid query is given', () => {
-    expect(() => rollupDeployments({})).toThrow()
+    expect(() =>
+      rollupDeployments(
+        {},
+        {
+          excludeEnvironments: [],
+          filterEnvironments: [],
+        },
+      ),
+    ).toThrow()
   })
 
   it('returns the deployments', () => {
@@ -41,7 +49,12 @@ describe('rollupDeployments', () => {
         cost: 1,
       },
     }
-    expect(rollupDeployments(query)).toStrictEqual<Rollup>({
+    expect(
+      rollupDeployments(query, {
+        excludeEnvironments: [],
+        filterEnvironments: [],
+      }),
+    ).toStrictEqual<Rollup>({
       conclusion: {
         completed: false,
         succeeded: false,

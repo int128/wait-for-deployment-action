@@ -12,6 +12,8 @@ import {
 } from './deployments.js'
 
 type Inputs = {
+  filterEnvironments: string[]
+  excludeEnvironments: string[]
   until: 'completed' | 'succeeded'
   initialDelaySeconds: number
   periodSeconds: number
@@ -77,7 +79,10 @@ const poll = async (inputs: Inputs): Promise<Rollup> => {
     })
     core.endGroup()
 
-    const rollup = rollupDeployments(deployments)
+    const rollup = rollupDeployments(deployments, {
+      filterEnvironments: inputs.filterEnvironments,
+      excludeEnvironments: inputs.excludeEnvironments,
+    })
     if (rollup.conclusion.completed) {
       return rollup
     }
