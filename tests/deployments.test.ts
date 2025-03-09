@@ -1,6 +1,6 @@
 import { DeploymentState } from '../src/generated/graphql-types.js'
 import { ListDeploymentsQuery } from '../src/generated/graphql.js'
-import { rollupDeployments, Rollup, determineRollupConclusion } from '../src/deployments.js'
+import { rollupDeployments, Rollup, determineRollupConclusion, filterDeployments } from '../src/deployments.js'
 
 describe('rollupDeployments', () => {
   it('throws an error if an invalid query is given', () => {
@@ -82,6 +82,50 @@ describe('rollupDeployments', () => {
         },
       ],
     })
+  })
+})
+
+describe('filterDeployments', () => {
+  const deployments = [
+    {
+      environment: 'pr-2/app1',
+      state: DeploymentState.Active,
+      url: undefined,
+      description: undefined,
+    },
+    {
+      environment: 'pr-2/app2',
+      state: DeploymentState.Pending,
+      url: undefined,
+      description: undefined,
+    },
+    {
+      environment: 'pr-2/app3',
+      state: DeploymentState.InProgress,
+      url: undefined,
+      description: undefined,
+    },
+  ]
+
+  it('returns the filtered deployments', () => {
+    const options = {
+      excludeEnvironments: ['*/app1'],
+      filterEnvironments: ['pr-2/*'],
+    }
+    expect(filterDeployments(deployments, options)).toStrictEqual([
+      {
+        environment: 'pr-2/app2',
+        state: DeploymentState.Pending,
+        url: undefined,
+        description: undefined,
+      },
+      {
+        environment: 'pr-2/app3',
+        state: DeploymentState.InProgress,
+        url: undefined,
+        description: undefined,
+      },
+    ])
   })
 })
 

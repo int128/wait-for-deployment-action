@@ -47,11 +47,17 @@ export type RollupOptions = {
 }
 
 export const rollupDeployments = (query: ListDeploymentsQuery, options: RollupOptions): Rollup => {
-  const rawDeployments = parseListDeploymentsQuery(query)
+  const deployments = filterDeployments(parseListDeploymentsQuery(query), options)
+  return {
+    conclusion: determineRollupConclusion(deployments),
+    deployments,
+  }
+}
 
+export const filterDeployments = (deployments: Deployment[], options: RollupOptions): Deployment[] => {
   const excludeEnvironmentMatchers = options.excludeEnvironments.map((pattern) => minimatch.filter(pattern))
   const filterEnvironmentMatchers = options.filterEnvironments.map((pattern) => minimatch.filter(pattern))
-  const deployments = rawDeployments.filter((deployment) => {
+  return deployments.filter((deployment) => {
     if (excludeEnvironmentMatchers.length > 0) {
       if (excludeEnvironmentMatchers.some((matcher) => matcher(deployment.environment))) {
         return false
@@ -64,11 +70,6 @@ export const rollupDeployments = (query: ListDeploymentsQuery, options: RollupOp
     }
     return true
   })
-
-  return {
-    conclusion: determineRollupConclusion(deployments),
-    deployments,
-  }
 }
 
 export const determineRollupConclusion = (deployments: Deployment[]): RollupConclusion => {
