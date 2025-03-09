@@ -4,6 +4,8 @@ import { run } from './run.js'
 
 const main = async (): Promise<void> => {
   const outputs = await run({
+    filterEnvironments: core.getMultilineInput('filter-environments'),
+    excludeEnvironments: core.getMultilineInput('exclude-environments'),
     until: parseUntil(core.getInput('until', { required: true })),
     initialDelaySeconds: Number.parseInt(core.getInput('initial-delay-seconds', { required: true })),
     periodSeconds: Number.parseInt(core.getInput('period-seconds', { required: true })),

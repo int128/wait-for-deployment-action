@@ -1,4 +1,5 @@
 import assert from 'assert'
+import * as minimatch from 'minimatch'
 import { ListDeploymentsQuery } from './generated/graphql.js'
 import { DeploymentState } from './generated/graphql-types.js'
 
@@ -40,13 +41,35 @@ const parseListDeploymentsQuery = (q: ListDeploymentsQuery): Deployment[] => {
   })
 }
 
-export const rollupDeployments = (query: ListDeploymentsQuery): Rollup => {
-  const deployments = parseListDeploymentsQuery(query)
+export type RollupOptions = {
+  filterEnvironments: string[]
+  excludeEnvironments: string[]
+}
 
+export const rollupDeployments = (query: ListDeploymentsQuery, options: RollupOptions): Rollup => {
+  const deployments = filterDeployments(parseListDeploymentsQuery(query), options)
   return {
     conclusion: determineRollupConclusion(deployments),
     deployments,
   }
+}
+
+export const filterDeployments = (deployments: Deployment[], options: RollupOptions): Deployment[] => {
+  const excludeEnvironmentMatchers = options.excludeEnvironments.map((pattern) => minimatch.filter(pattern))
+  const filterEnvironmentMatchers = options.filterEnvironments.map((pattern) => minimatch.filter(pattern))
+  return deployments.filter((deployment) => {
+    if (excludeEnvironmentMatchers.length > 0) {
+      if (excludeEnvironmentMatchers.some((matcher) => matcher(deployment.environment))) {
+        return false
+      }
+    }
+    if (filterEnvironmentMatchers.length > 0) {
+      if (!filterEnvironmentMatchers.some((matcher) => matcher(deployment.environment))) {
+        return false
+      }
+    }
+    return true
+  })
 }
 
 export const determineRollupConclusion = (deployments: Deployment[]): RollupConclusion => {

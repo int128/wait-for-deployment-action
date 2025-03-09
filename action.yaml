@@ -2,6 +2,12 @@ name: wait-for-deployment-action
 description: Wait for GitHub Deployment
 
 inputs:
+  filter-environments:
+    description: Filter deployments by environment patterns (multiline)
+    required: false
+  exclude-environments:
+    description: Exclude deployments by environment patterns (multiline)
+    required: false
   until:
     description: Either completed or succeeded
     required: false
