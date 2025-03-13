@@ -129,13 +129,15 @@ x: This action maps the state of GitHub deployment to the corresponding column.
 Here is an example of the `json` output.
 
 ```json
-[
-  {
-    "environment": "pr-1",
-    "state": "ACTIVE",
-    "url": "https://argocd.example.com/pr-1"
-  }
-]
+{
+  "deployments": [
+    {
+      "environment": "pr-1",
+      "state": "ACTIVE",
+      "url": "https://argocd.example.com/pr-1"
+    }
+  ]
+}
 ```
 
 See [deployments.ts](deployments.ts) for the type definition.

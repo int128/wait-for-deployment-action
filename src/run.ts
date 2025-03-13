@@ -28,8 +28,10 @@ type Inputs = {
 
 type Outputs = {
   conclusion: RollupConclusion
-  json: Deployment[]
   summary: string
+  json: {
+    deployments: Deployment[]
+  }
 }
 
 export const run = async (inputs: Inputs): Promise<Outputs> => {
@@ -48,8 +50,10 @@ export const run = async (inputs: Inputs): Promise<Outputs> => {
   const summary = formatSummaryOutput(rollup)
   return {
     conclusion: rollup.conclusion,
-    json: rollup.deployments,
     summary,
+    json: {
+      deployments: rollup.deployments,
+    },
   }
 }
 
