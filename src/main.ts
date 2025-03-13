@@ -22,12 +22,16 @@ const main = async (): Promise<void> => {
   core.setOutput('failed', outputs.conclusion.failed)
   core.setOutput('completed', outputs.conclusion.completed)
   core.setOutput('summary', outputs.summary)
+  core.setOutput('json', outputs.json)
 
   core.startGroup('outputs')
   core.info(JSON.stringify(outputs.conclusion, undefined, 2))
   core.endGroup()
   core.startGroup('outputs.summary')
   core.info(outputs.summary)
+  core.endGroup()
+  core.startGroup('outputs.json')
+  core.info(JSON.stringify(outputs.json, undefined, 2))
   core.endGroup()
 }
 

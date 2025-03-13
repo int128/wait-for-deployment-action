@@ -103,11 +103,12 @@ This action determines the exit code based on the condition at the timeout.
 
 | Name          | Description                               |
 | ------------- | ----------------------------------------- |
-| `summary`     | Markdown list of all deployments          |
 | `completed`   | Whether **all** deployments are completed |
 | `succeeded`   | Whether **all** deployments are succeeded |
 | `progressing` | Whether **any** deployment is progressing |
 | `failed`      | Whether **any** deployment is failed      |
+| `summary`     | Markdown list of all deployments          |
+| `json`        | JSON representation of all deployments    |
 
 This action determines the outputs as below table.
 

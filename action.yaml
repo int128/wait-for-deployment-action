@@ -41,6 +41,8 @@ outputs:
     description: Whether all deployments are succeeded
   summary:
     description: Markdown list of all deployments
+  json:
+    description: JSON representation of all deployments
 
 runs:
   using: 'node20'
