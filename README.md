@@ -103,11 +103,12 @@ This action determines the exit code based on the condition at the timeout.
 
 | Name          | Description                               |
 | ------------- | ----------------------------------------- |
-| `summary`     | Markdown list of all deployments          |
 | `completed`   | Whether **all** deployments are completed |
 | `succeeded`   | Whether **all** deployments are succeeded |
 | `progressing` | Whether **any** deployment is progressing |
 | `failed`      | Whether **any** deployment is failed      |
+| `summary`     | Markdown list of all deployments          |
+| `json`        | JSON representation of all deployments    |
 
 This action determines the outputs as below table.
 
@@ -122,3 +123,21 @@ This action determines the outputs as below table.
 | (others)                | -         | -         | -           | -      |
 
 x: This action maps the state of GitHub deployment to the corresponding column.
+
+#### `json` output
+
+Here is an example of the `json` output.
+
+```json
+{
+  "deployments": [
+    {
+      "environment": "pr-1",
+      "state": "ACTIVE",
+      "url": "https://argocd.example.com/pr-1"
+    }
+  ]
+}
+```
+
+See [deployments.ts](deployments.ts) for the type definition.

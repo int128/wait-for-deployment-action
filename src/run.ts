@@ -3,6 +3,7 @@ import * as github from './github.js'
 import { getListDeploymentsQuery } from './queries/listDeployments.js'
 import { sleep, startTimer } from './timer.js'
 import {
+  Deployment,
   formatDeploymentStateEmoji,
   formatDeploymentStateMarkdown,
   isDeploymentCompleted,
@@ -28,6 +29,9 @@ type Inputs = {
 type Outputs = {
   conclusion: RollupConclusion
   summary: string
+  json: {
+    deployments: Deployment[]
+  }
 }
 
 export const run = async (inputs: Inputs): Promise<Outputs> => {
@@ -47,6 +51,9 @@ export const run = async (inputs: Inputs): Promise<Outputs> => {
   return {
     conclusion: rollup.conclusion,
     summary,
+    json: {
+      deployments: rollup.deployments,
+    },
   }
 }
 

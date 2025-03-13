@@ -112,12 +112,16 @@ jobs:
       - run: pnpm i
       - run: pnpm build
       - name: Run int128/wait-for-deployment-action
+        id: wait-for-deployment
         uses: ./
         with:
           until: completed
           deployment-sha: ${{ github.event.pull_request.head.sha || github.sha }}
           initial-delay-seconds: 0
           period-seconds: 3
+      - run: jq . <<< "$deployments"
+        env:
+          deployments: ${{ steps.wait-for-deployment.outputs.json }}
 
   generate:
     runs-on: ubuntu-latest
