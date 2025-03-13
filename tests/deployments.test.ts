@@ -63,12 +63,6 @@ describe('rollupDeployments', () => {
       },
       deployments: [
         {
-          environment: 'pr-727/app1',
-          state: DeploymentState.Active,
-          url: 'https://argocd.example.com/applications/app1',
-          description: 'Succeeded:\nsuccessfully synced (all tasks run)',
-        },
-        {
           environment: 'pr-2/app2',
           state: DeploymentState.Pending,
           url: undefined,
@@ -79,6 +73,12 @@ describe('rollupDeployments', () => {
           state: DeploymentState.Queued,
           url: undefined,
           description: undefined,
+        },
+        {
+          environment: 'pr-727/app1',
+          state: DeploymentState.Active,
+          url: 'https://argocd.example.com/applications/app1',
+          description: 'Succeeded:\nsuccessfully synced (all tasks run)',
         },
       ],
     })

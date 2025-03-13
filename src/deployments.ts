@@ -48,11 +48,15 @@ export type RollupOptions = {
 
 export const rollupDeployments = (query: ListDeploymentsQuery, options: RollupOptions): Rollup => {
   const deployments = filterDeployments(parseListDeploymentsQuery(query), options)
+  sortByEnvironment(deployments)
   return {
     conclusion: determineRollupConclusion(deployments),
     deployments,
   }
 }
+
+const sortByEnvironment = (deployments: Deployment[]) =>
+  deployments.sort((a, b) => a.environment.localeCompare(b.environment))
 
 export const filterDeployments = (deployments: Deployment[], options: RollupOptions): Deployment[] => {
   const excludeEnvironmentMatchers = options.excludeEnvironments.map((pattern) => minimatch.filter(pattern))
