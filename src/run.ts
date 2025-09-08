@@ -13,6 +13,8 @@ import {
   rollupDeployments,
 } from './deployments.js'
 
+type SummaryMarkdownFlavor = 'github' | 'slack'
+
 type Inputs = {
   filterEnvironments: string[]
   excludeEnvironments: string[]
@@ -21,6 +23,7 @@ type Inputs = {
   periodSeconds: number
   timeoutSeconds: number | null
   deploymentSha: string
+  summaryMarkdownFlavor: SummaryMarkdownFlavor
 }
 
 type Outputs = {
@@ -45,7 +48,7 @@ export const run = async (inputs: Inputs, octokit: Octokit, context: github.Cont
   if (inputs.until === 'succeeded' && rollup.conclusion.failed) {
     core.setFailed(`Some deployment has failed. See ${workflowURL} for the summary.`)
   }
-  const summary = formatSummaryOutput(rollup)
+  const summary = formatSummaryOutput(rollup, inputs.summaryMarkdownFlavor)
   return {
     conclusion: rollup.conclusion,
     summary,
@@ -54,20 +57,6 @@ export const run = async (inputs: Inputs, octokit: Octokit, context: github.Cont
     },
   }
 }
-
-const formatSummaryOutput = (rollup: Rollup) =>
-  rollup.deployments
-    .map((deployment) => {
-      const columns = [
-        toMarkdownLink(deployment.environment, deployment.url),
-        formatDeploymentStateMarkdown(deployment.state),
-      ]
-      if (deployment.description) {
-        columns.push(deployment.description)
-      }
-      return `- ${columns.join(': ')}`
-    })
-    .join('\n')
 
 const poll = async (inputs: Inputs, octokit: Octokit, context: github.Context): Promise<Rollup> => {
   const timer = startTimer()
@@ -147,9 +136,26 @@ const writeDeploymentsSummary = async (rollup: Rollup) => {
   await core.summary.write()
 }
 
-const toMarkdownLink = (s: string, url: string | null | undefined) => {
+const formatSummaryOutput = (rollup: Rollup, flavor: SummaryMarkdownFlavor) =>
+  rollup.deployments
+    .map((deployment) => {
+      const columns = [
+        toMarkdownLink(deployment.environment, deployment.url, flavor),
+        formatDeploymentStateMarkdown(deployment.state),
+      ]
+      if (deployment.description) {
+        columns.push(deployment.description)
+      }
+      return `- ${columns.join(': ')}`
+    })
+    .join('\n')
+
+const toMarkdownLink = (s: string, url: string | null | undefined, flavor: SummaryMarkdownFlavor) => {
   if (url == null) {
     return s
+  }
+  if (flavor === 'slack') {
+    return `<${url}|${s}>`
   }
   return `[${s}](${url})`
 }
