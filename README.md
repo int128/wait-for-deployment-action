@@ -88,16 +88,17 @@ This action determines the exit code based on the condition at the timeout.
 
 ### Inputs
 
-| Name                    | Default        | Description                                 |
-| ----------------------- | -------------- | ------------------------------------------- |
-| `filter-environments`   | -              | Filter deployments by environment patterns  |
-| `exclude-environments`  | -              | Exclude deployments by environment patterns |
-| `until`                 | (required)     | Either `completed` or `succeeded`           |
-| `initial-delay-seconds` | 10             | Initial delay before polling in seconds     |
-| `period-seconds`        | 15             | Polling interval in seconds                 |
-| `timeout-seconds`       | -              | If set, poll until the timeout              |
-| `deployment-sha`        | (required)     | Find the deployments of the commit          |
-| `token`                 | `github.token` | GitHub token                                |
+| Name                      | Default        | Description                                             |
+| ------------------------- | -------------- | ------------------------------------------------------- |
+| `filter-environments`     | -              | Filter deployments by environment patterns              |
+| `exclude-environments`    | -              | Exclude deployments by environment patterns             |
+| `until`                   | (required)     | Either `completed` or `succeeded`                       |
+| `initial-delay-seconds`   | 10             | Initial delay before polling in seconds                 |
+| `period-seconds`          | 15             | Polling interval in seconds                             |
+| `timeout-seconds`         | -              | If set, poll until the timeout                          |
+| `deployment-sha`          | (required)     | Find the deployments of the commit                      |
+| `summary-markdown-flavor` | `github`       | Flavor of `summary` output. Either `github` or `slack`. |
+| `token`                   | `github.token` | GitHub token                                            |
 
 ### Outputs
 

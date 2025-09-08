@@ -12,6 +12,7 @@ const main = async (): Promise<void> => {
       periodSeconds: Number.parseInt(core.getInput('period-seconds', { required: true })),
       timeoutSeconds: Number.parseInt(core.getInput('timeout-seconds')) || null,
       deploymentSha: core.getInput('deployment-sha', { required: true }),
+      summaryMarkdownFlavor: parseSummaryMarkdownFlavor(core.getInput('summary-markdown-flavor', { required: true })),
     },
     github.getOctokit(),
     await github.getContext(),
@@ -40,6 +41,13 @@ const parseUntil = (s: string): 'completed' | 'succeeded' => {
     return s
   }
   throw new Error(`until must be either completed or succeeded`)
+}
+
+const parseSummaryMarkdownFlavor = (s: string): 'github' | 'slack' => {
+  if (s === 'github' || s === 'slack') {
+    return s
+  }
+  throw new Error(`summary-markdown-flavor must be either github or slack`)
 }
 
 main().catch((e: Error) => {

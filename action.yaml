@@ -25,6 +25,10 @@ inputs:
   deployment-sha:
     description: Find the deployments of the commit
     required: true
+  summary-markdown-flavor:
+    description: Flavor of summary output. Either github or slack
+    required: true
+    default: github
   token:
     description: GitHub token
     required: true
