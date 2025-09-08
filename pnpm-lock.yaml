@@ -12,7 +12,7 @@ importers:
         specifier: 1.11.1
         version: 1.11.1
       '@octokit/action':
-        specifier: ^8.0.2
+        specifier: 8.0.2
         version: 8.0.2
       '@octokit/plugin-retry':
         specifier: 8.0.1
@@ -43,7 +43,7 @@ importers:
         specifier: 15.26.0
         version: 15.26.0
       '@octokit/webhooks-types':
-        specifier: ^7.6.1
+        specifier: 7.6.1
         version: 7.6.1
       '@tsconfig/node20':
         specifier: 20.1.6
@@ -3875,13 +3875,13 @@ snapshots:
       '@octokit/core': 7.0.3
       '@octokit/plugin-paginate-rest': 13.1.1(@octokit/core@7.0.3)
       '@octokit/plugin-rest-endpoint-methods': 16.0.0(@octokit/core@7.0.3)
-      '@octokit/types': 14.0.0
+      '@octokit/types': 14.1.0
       undici: 6.21.3
 
   '@octokit/auth-action@6.0.1':
     dependencies:
       '@octokit/auth-token': 6.0.0
-      '@octokit/types': 14.0.0
+      '@octokit/types': 14.1.0
 
   '@octokit/auth-token@6.0.0': {}
 
@@ -3891,13 +3891,13 @@ snapshots:
       '@octokit/graphql': 9.0.1
       '@octokit/request': 10.0.3
       '@octokit/request-error': 7.0.0
-      '@octokit/types': 14.0.0
+      '@octokit/types': 14.1.0
       before-after-hook: 4.0.0
       universal-user-agent: 7.0.3
 
   '@octokit/endpoint@11.0.0':
     dependencies:
-      '@octokit/types': 14.0.0
+      '@octokit/types': 14.1.0
       universal-user-agent: 7.0.3
 
   '@octokit/graphql-schema@15.26.0':
@@ -3908,7 +3908,7 @@ snapshots:
   '@octokit/graphql@9.0.1':
     dependencies:
       '@octokit/request': 10.0.3
-      '@octokit/types': 14.0.0
+      '@octokit/types': 14.1.0
       universal-user-agent: 7.0.3
 
   '@octokit/openapi-types@25.0.0': {}
@@ -3940,7 +3940,7 @@ snapshots:
     dependencies:
       '@octokit/endpoint': 11.0.0
       '@octokit/request-error': 7.0.0
-      '@octokit/types': 14.0.0
+      '@octokit/types': 14.1.0
       fast-content-type-parse: 3.0.0
       universal-user-agent: 7.0.3
 
