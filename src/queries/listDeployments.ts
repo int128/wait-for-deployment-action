@@ -1,6 +1,6 @@
 import assert from 'assert'
 import * as core from '@actions/core'
-import * as github from '../github.js'
+import { Octokit } from '@octokit/action'
 import { ListDeploymentsQuery, ListDeploymentsQueryVariables } from '../generated/graphql.js'
 
 const query = /* GraphQL */ `
@@ -30,7 +30,7 @@ const query = /* GraphQL */ `
 `
 
 export const getListDeploymentsQuery = async (
-  o: github.Octokit,
+  o: Octokit,
   v: ListDeploymentsQueryVariables,
 ): Promise<ListDeploymentsQuery> => {
   core.info(`Calling ListDeployments(${JSON.stringify(v)})`)

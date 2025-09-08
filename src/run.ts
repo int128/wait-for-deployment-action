@@ -1,5 +1,6 @@
 import * as core from '@actions/core'
 import * as github from './github.js'
+import { Octokit } from '@octokit/action'
 import { getListDeploymentsQuery } from './queries/listDeployments.js'
 import { sleep, startTimer } from './timer.js'
 import {
@@ -19,11 +20,7 @@ type Inputs = {
   initialDelaySeconds: number
   periodSeconds: number
   timeoutSeconds: number | null
-  owner: string
-  repo: string
   deploymentSha: string
-  token: string
-  workflowURL: string
 }
 
 type Outputs = {
@@ -34,18 +31,19 @@ type Outputs = {
   }
 }
 
-export const run = async (inputs: Inputs): Promise<Outputs> => {
+export const run = async (inputs: Inputs, octokit: Octokit, context: github.Context): Promise<Outputs> => {
   core.info(`Target commit: ${inputs.deploymentSha}`)
   core.info(`Waiting until the status is ${inputs.until}`)
-  const rollup = await poll(inputs)
+  const rollup = await poll(inputs, octokit, context)
   core.info(`----`)
   writeDeploymentsLog(rollup)
   core.info(`----`)
   await writeDeploymentsSummary(rollup)
-  core.info(`You can see the summary at ${inputs.workflowURL}`)
+  const workflowURL = `${context.serverUrl}/${context.repo.owner}/${context.repo.repo}/actions/runs/${context.runId}`
+  core.info(`You can see the summary at ${workflowURL}`)
 
   if (inputs.until === 'succeeded' && rollup.conclusion.failed) {
-    core.setFailed(`Some deployment has failed. See ${inputs.workflowURL} for the summary.`)
+    core.setFailed(`Some deployment has failed. See ${workflowURL} for the summary.`)
   }
   const summary = formatSummaryOutput(rollup)
   return {
@@ -71,8 +69,7 @@ const formatSummaryOutput = (rollup: Rollup) =>
     })
     .join('\n')
 
-const poll = async (inputs: Inputs): Promise<Rollup> => {
-  const octokit = github.getOctokit(inputs.token)
+const poll = async (inputs: Inputs, octokit: Octokit, context: github.Context): Promise<Rollup> => {
   const timer = startTimer()
   core.info(`Waiting for initial delay ${inputs.initialDelaySeconds}s`)
   await sleep(inputs.initialDelaySeconds * 1000)
@@ -80,8 +77,8 @@ const poll = async (inputs: Inputs): Promise<Rollup> => {
   for (;;) {
     core.startGroup(`GraphQL request`)
     const deployments = await getListDeploymentsQuery(octokit, {
-      owner: inputs.owner,
-      name: inputs.repo,
+      owner: context.repo.owner,
+      name: context.repo.repo,
       expression: inputs.deploymentSha,
     })
     core.endGroup()
