@@ -1,7 +1,7 @@
-import assert from 'assert'
+import assert from 'node:assert'
 import * as core from '@actions/core'
-import { Octokit } from '@octokit/action'
-import { ListDeploymentsQuery, ListDeploymentsQueryVariables } from '../generated/graphql.js'
+import type { Octokit } from '@octokit/action'
+import type { ListDeploymentsQuery, ListDeploymentsQueryVariables } from '../generated/graphql.js'
 
 const query = /* GraphQL */ `
   query listDeployments($owner: String!, $name: String!, $expression: String!) {

@@ -1,7 +1,7 @@
-import { describe, it, expect } from 'vitest'
+import { describe, expect, it } from 'vitest'
+import { determineRollupConclusion, filterDeployments, type Rollup, rollupDeployments } from '../src/deployments.js'
+import type { ListDeploymentsQuery } from '../src/generated/graphql.js'
 import { DeploymentState } from '../src/generated/graphql-types.js'
-import { ListDeploymentsQuery } from '../src/generated/graphql.js'
-import { rollupDeployments, Rollup, determineRollupConclusion, filterDeployments } from '../src/deployments.js'
 
 describe('rollupDeployments', () => {
   it('throws an error if an invalid query is given', () => {
