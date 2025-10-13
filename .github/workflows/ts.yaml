@@ -34,7 +34,7 @@ jobs:
           package-manager-cache: false
       - run: npm install -g pnpm@latest-10
       - run: pnpm i
-      - run: pnpm test
+      - run: pnpm run check --fix
 
   create-deployments:
     runs-on: ubuntu-latest

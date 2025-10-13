@@ -1,17 +1,17 @@
 import * as core from '@actions/core'
-import * as github from './github.js'
-import { Octokit } from '@octokit/action'
-import { getListDeploymentsQuery } from './queries/listDeployments.js'
-import { sleep, startTimer } from './timer.js'
+import type { Octokit } from '@octokit/action'
 import {
-  Deployment,
+  type Deployment,
   formatDeploymentStateEmoji,
   formatDeploymentStateMarkdown,
   isDeploymentCompleted,
-  Rollup,
-  RollupConclusion,
+  type Rollup,
+  type RollupConclusion,
   rollupDeployments,
 } from './deployments.js'
+import type * as github from './github.js'
+import { getListDeploymentsQuery } from './queries/listDeployments.js'
+import { sleep, startTimer } from './timer.js'
 
 type SummaryMarkdownFlavor = 'github' | 'slack'
 

@@ -1,6 +1,6 @@
-import assert from 'assert'
+import assert from 'node:assert'
 import * as minimatch from 'minimatch'
-import { ListDeploymentsQuery } from './generated/graphql.js'
+import type { ListDeploymentsQuery } from './generated/graphql.js'
 import { DeploymentState } from './generated/graphql-types.js'
 
 export type Rollup = {
