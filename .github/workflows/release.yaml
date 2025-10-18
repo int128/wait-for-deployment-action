@@ -24,6 +24,5 @@ jobs:
           package-manager-cache: false
       - run: npm install -g pnpm@latest-10
       - run: pnpm i
-      - run: pnpm biome check --fix
       - run: pnpm build
       - uses: int128/release-typescript-action@0f99cd3bf6f26485a83025f5ee78d6b372ad7f3b # v1.37.0
