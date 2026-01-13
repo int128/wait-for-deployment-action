@@ -124,6 +124,9 @@ jobs:
       - run: jq . <<< "$deployments"
         env:
           deployments: ${{ steps.wait-for-deployment.outputs.json }}
+      - name: Check if total-count is 3
+        if: steps.wait-for-deployment.outputs.total-count < 3
+        run: exit 1
 
   generate:
     runs-on: ubuntu-latest
