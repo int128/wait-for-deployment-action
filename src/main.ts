@@ -23,6 +23,7 @@ const main = async (): Promise<void> => {
   core.setOutput('succeeded', outputs.conclusion.succeeded)
   core.setOutput('failed', outputs.conclusion.failed)
   core.setOutput('completed', outputs.conclusion.completed)
+  core.setOutput('total-count', outputs.totalCount)
   core.setOutput('summary', outputs.summary)
   core.setOutput('json', outputs.json)
 
