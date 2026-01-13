@@ -28,6 +28,7 @@ type Inputs = {
 
 type Outputs = {
   conclusion: RollupConclusion
+  totalCount: number
   summary: string
   json: {
     deployments: Deployment[]
@@ -51,6 +52,7 @@ export const run = async (inputs: Inputs, octokit: Octokit, context: github.Cont
   const summary = formatSummaryOutput(rollup, inputs.summaryMarkdownFlavor)
   return {
     conclusion: rollup.conclusion,
+    totalCount: rollup.deployments.length,
     summary,
     json: {
       deployments: rollup.deployments,

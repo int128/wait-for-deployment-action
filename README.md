@@ -112,6 +112,7 @@ If `timeout-seconds` is not set, this action waits forever until the condition i
 | `succeeded`   | Whether **all** deployments are succeeded |
 | `progressing` | Whether **any** deployment is progressing |
 | `failed`      | Whether **any** deployment is failed      |
+| `total-count` | Total number of deployments               |
 | `summary`     | Markdown list of all deployments          |
 | `json`        | JSON representation of all deployments    |
 
