@@ -16,6 +16,36 @@ describe('rollupDeployments', () => {
     ).toThrow()
   })
 
+  it('returns empty deployments if no deployment is given', () => {
+    const query: ListDeploymentsQuery = {
+      repository: {
+        object: {
+          __typename: 'Commit',
+          deployments: {
+            nodes: [],
+          },
+        },
+      },
+      rateLimit: {
+        cost: 1,
+      },
+    }
+    expect(
+      rollupDeployments(query, {
+        excludeEnvironments: [],
+        filterEnvironments: [],
+      }),
+    ).toStrictEqual<Rollup>({
+      conclusion: {
+        completed: true,
+        succeeded: true,
+        progressing: false,
+        failed: false,
+      },
+      deployments: [],
+    })
+  })
+
   it('returns the deployments', () => {
     const query: ListDeploymentsQuery = {
       repository: {
@@ -131,6 +161,15 @@ describe('filterDeployments', () => {
 })
 
 describe('determineRollupConclusion', () => {
+  it('returns completed and succeeded if no deployment is given', () => {
+    expect(determineRollupConclusion([])).toStrictEqual({
+      completed: true,
+      succeeded: true,
+      progressing: false,
+      failed: false,
+    })
+  })
+
   it('returns nothing if all deployments are pending', () => {
     const deployments = [
       {
