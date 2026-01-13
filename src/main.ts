@@ -28,7 +28,11 @@ const main = async (): Promise<void> => {
   core.setOutput('json', outputs.json)
 
   core.startGroup('outputs')
-  core.info(JSON.stringify(outputs.conclusion, undefined, 2))
+  core.info(`progressing: ${outputs.conclusion.progressing}`)
+  core.info(`succeeded: ${outputs.conclusion.succeeded}`)
+  core.info(`failed: ${outputs.conclusion.failed}`)
+  core.info(`completed: ${outputs.conclusion.completed}`)
+  core.info(`total-count: ${outputs.totalCount}`)
   core.endGroup()
   core.startGroup('outputs.summary')
   core.info(outputs.summary)
