@@ -86,7 +86,7 @@ const poll = async (inputs: Inputs, octokit: Octokit, context: github.Context): 
     core.endGroup()
 
     const elapsedSec = timer.elapsedSeconds()
-    if (inputs.timeoutSeconds && elapsedSec > inputs.timeoutSeconds) {
+    if (inputs.timeoutSeconds !== null && elapsedSec > inputs.timeoutSeconds) {
       core.info(`Timed out (elapsed ${elapsedSec}s > timeout ${inputs.timeoutSeconds}s)`)
       return rollup
     }
