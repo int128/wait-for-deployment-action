@@ -74,15 +74,19 @@ If `until` is set to `succeeded`,
 
 - When **all** deployments are succeeded, this action exits successfully.
 - When **any** deployment is failed, this action exits with an error.
+- When no deployment is found, this action exits successfully.
 
 If `until` is set to `completed`,
 
 - When **all** deployments are completed, this action exits successfully.
+- When no deployment is found, this action exits successfully.
 
 ### Set a timeout
 
 If `timeout-seconds` is set, this action stops after the timeout.
 This action determines the exit code based on the condition at the timeout.
+
+If `timeout-seconds` is not set, this action waits forever until the condition is met.
 
 ## Specification
 
@@ -110,6 +114,8 @@ This action determines the exit code based on the condition at the timeout.
 | `failed`      | Whether **any** deployment is failed      |
 | `summary`     | Markdown list of all deployments          |
 | `json`        | JSON representation of all deployments    |
+
+When no deployment is found, this action sets `completed` and `succeeded` to true.
 
 This action determines the outputs as below table.
 
@@ -141,4 +147,4 @@ Here is an example of the `json` output.
 }
 ```
 
-See [deployments.ts](deployments.ts) for the type definition.
+See [deployments.ts](src/deployments.ts) for the type definition.

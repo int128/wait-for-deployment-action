@@ -131,6 +131,15 @@ describe('filterDeployments', () => {
 })
 
 describe('determineRollupConclusion', () => {
+  it('returns completed and succeeded if no deployment is given', () => {
+    expect(determineRollupConclusion([])).toStrictEqual({
+      completed: true,
+      succeeded: true,
+      progressing: false,
+      failed: false,
+    })
+  })
+
   it('returns nothing if all deployments are pending', () => {
     const deployments = [
       {
