@@ -2,15 +2,17 @@ import * as core from '@actions/core'
 import type { Octokit } from '@octokit/action'
 import {
   type Deployment,
+  filterCompletedDeployments,
+  filterDeployments,
   formatDeploymentStateEmoji,
   formatDeploymentStateMarkdown,
-  isDeploymentCompleted,
+  parseListDeploymentsQuery,
   type Rollup,
   type RollupConclusion,
   rollupDeployments,
 } from './deployments.js'
 import type * as github from './github.js'
-import { getListDeploymentsQuery } from './queries/listDeployments.js'
+import { executeListDeploymentsQuery } from './queries/listDeployments.js'
 import { sleep, startTimer } from './timer.js'
 
 type SummaryMarkdownFlavor = 'github' | 'slack'
@@ -38,67 +40,68 @@ type Outputs = {
 export const run = async (inputs: Inputs, octokit: Octokit, context: github.Context): Promise<Outputs> => {
   core.info(`Target commit: ${inputs.deploymentSha}`)
   core.info(`Waiting until the status is ${inputs.until}`)
-  const rollup = await poll(inputs, octokit, context)
+  const { deployments, rollup } = await poll(inputs, octokit, context)
   core.info(`----`)
-  writeDeploymentsLog(rollup)
+  writeDeploymentsLog(deployments)
   core.info(`----`)
-  await writeDeploymentsSummary(rollup)
+  await writeDeploymentsSummary(deployments, rollup)
   const workflowURL = `${context.serverUrl}/${context.repo.owner}/${context.repo.repo}/actions/runs/${context.runId}`
   core.info(`You can see the summary at ${workflowURL}`)
 
   if (inputs.until === 'succeeded' && rollup.conclusion.failed) {
     core.setFailed(`Some deployment has failed. See ${workflowURL} for the summary.`)
   }
-  const summary = formatSummaryOutput(rollup, inputs.summaryMarkdownFlavor)
+  const summary = formatSummaryOutput(deployments, inputs.summaryMarkdownFlavor)
   return {
     conclusion: rollup.conclusion,
-    totalCount: rollup.deployments.length,
+    totalCount: deployments.length,
     summary,
     json: {
-      deployments: rollup.deployments,
+      deployments,
     },
   }
 }
 
-const poll = async (inputs: Inputs, octokit: Octokit, context: github.Context): Promise<Rollup> => {
+const poll = async (inputs: Inputs, octokit: Octokit, context: github.Context) => {
   const timer = startTimer()
   core.info(`Waiting for initial delay ${inputs.initialDelaySeconds}s`)
   await sleep(inputs.initialDelaySeconds * 1000)
 
   for (;;) {
     core.startGroup(`GraphQL request`)
-    const deployments = await getListDeploymentsQuery(octokit, {
+    const listDeploymentsQuery = await executeListDeploymentsQuery(octokit, {
       owner: context.repo.owner,
       name: context.repo.repo,
       expression: inputs.deploymentSha,
     })
     core.endGroup()
 
-    const rollup = rollupDeployments(deployments, {
+    const deployments = filterDeployments(parseListDeploymentsQuery(listDeploymentsQuery), {
       filterEnvironments: inputs.filterEnvironments,
       excludeEnvironments: inputs.excludeEnvironments,
     })
+    const rollup = rollupDeployments(deployments)
     if (rollup.conclusion.completed) {
-      return rollup
+      return { deployments, rollup }
     }
 
-    const completedCount = rollup.deployments.filter((deployment) => isDeploymentCompleted(deployment.state)).length
-    core.startGroup(`Current deployments: ${completedCount} / ${rollup.deployments.length} completed`)
-    writeDeploymentsLog(rollup)
+    const completedCount = filterCompletedDeployments(deployments)
+    core.startGroup(`Current deployments: ${completedCount.length} / ${deployments.length} completed`)
+    writeDeploymentsLog(deployments)
     core.endGroup()
 
     const elapsedSec = timer.elapsedSeconds()
     if (inputs.timeoutSeconds !== null && elapsedSec > inputs.timeoutSeconds) {
       core.info(`Timed out (elapsed ${elapsedSec}s > timeout ${inputs.timeoutSeconds}s)`)
-      return rollup
+      return { deployments, rollup }
     }
     core.info(`Waiting for ${inputs.periodSeconds}s`)
     await sleep(inputs.periodSeconds * 1000)
   }
 }
 
-const writeDeploymentsLog = (rollup: Rollup) => {
-  for (const deployment of rollup.deployments) {
+const writeDeploymentsLog = (deployments: Deployment[]) => {
+  for (const deployment of deployments) {
     const columns = [deployment.environment, formatDeploymentStateEmoji(deployment.state)]
     if (deployment.description) {
       columns.push(deployment.description)
@@ -107,7 +110,7 @@ const writeDeploymentsLog = (rollup: Rollup) => {
   }
 }
 
-const writeDeploymentsSummary = async (rollup: Rollup) => {
+const writeDeploymentsSummary = async (deployments: Deployment[], rollup: Rollup) => {
   core.summary.addHeading('wait-for-deployment summary', 2)
   const conclusions = []
   if (rollup.conclusion.completed) {
@@ -129,7 +132,7 @@ const writeDeploymentsSummary = async (rollup: Rollup) => {
       { data: 'State', header: true },
       { data: 'Description', header: true },
     ],
-    ...rollup.deployments.map((deployment) => [
+    ...deployments.map((deployment) => [
       toHtmlLink(deployment.environment, deployment.url),
       formatDeploymentStateMarkdown(deployment.state),
       deployment.description ?? '',
@@ -138,8 +141,8 @@ const writeDeploymentsSummary = async (rollup: Rollup) => {
   await core.summary.write()
 }
 
-const formatSummaryOutput = (rollup: Rollup, flavor: SummaryMarkdownFlavor) =>
-  rollup.deployments
+const formatSummaryOutput = (deployments: Deployment[], flavor: SummaryMarkdownFlavor) =>
+  deployments
     .map((deployment) => {
       const columns = [
         toMarkdownLink(deployment.environment, deployment.url, flavor),
