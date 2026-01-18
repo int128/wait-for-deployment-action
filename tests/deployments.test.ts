@@ -1,19 +1,11 @@
 import { describe, expect, it } from 'vitest'
-import { determineRollupConclusion, filterDeployments, type Rollup, rollupDeployments } from '../src/deployments.js'
+import { type Deployment, rollupDeployments, filterDeployments, parseListDeploymentsQuery } from '../src/deployments.js'
 import type { ListDeploymentsQuery } from '../src/generated/graphql.js'
 import { DeploymentState } from '../src/generated/graphql-types.js'
 
-describe('rollupDeployments', () => {
+describe('parseListDeploymentsQuery', () => {
   it('throws an error if an invalid query is given', () => {
-    expect(() =>
-      rollupDeployments(
-        {},
-        {
-          excludeEnvironments: [],
-          filterEnvironments: [],
-        },
-      ),
-    ).toThrow()
+    expect(() => parseListDeploymentsQuery({})).toThrow()
   })
 
   it('returns empty deployments if no deployment is given', () => {
@@ -30,20 +22,7 @@ describe('rollupDeployments', () => {
         cost: 1,
       },
     }
-    expect(
-      rollupDeployments(query, {
-        excludeEnvironments: [],
-        filterEnvironments: [],
-      }),
-    ).toStrictEqual<Rollup>({
-      conclusion: {
-        completed: true,
-        succeeded: true,
-        progressing: false,
-        failed: false,
-      },
-      deployments: [],
-    })
+    expect(parseListDeploymentsQuery(query)).toStrictEqual<Deployment[]>([])
   })
 
   it('returns the deployments', () => {
@@ -80,39 +59,26 @@ describe('rollupDeployments', () => {
         cost: 1,
       },
     }
-    expect(
-      rollupDeployments(query, {
-        excludeEnvironments: [],
-        filterEnvironments: [],
-      }),
-    ).toStrictEqual<Rollup>({
-      conclusion: {
-        completed: false,
-        succeeded: false,
-        progressing: true,
-        failed: false,
+    expect(parseListDeploymentsQuery(query)).toStrictEqual<Deployment[]>([
+      {
+        environment: 'pr-727/app1',
+        state: DeploymentState.Active,
+        url: 'https://argocd.example.com/applications/app1',
+        description: 'Succeeded:\nsuccessfully synced (all tasks run)',
       },
-      deployments: [
-        {
-          environment: 'pr-2/app2',
-          state: DeploymentState.Pending,
-          url: undefined,
-          description: undefined,
-        },
-        {
-          environment: 'pr-2/app3',
-          state: DeploymentState.Queued,
-          url: undefined,
-          description: undefined,
-        },
-        {
-          environment: 'pr-727/app1',
-          state: DeploymentState.Active,
-          url: 'https://argocd.example.com/applications/app1',
-          description: 'Succeeded:\nsuccessfully synced (all tasks run)',
-        },
-      ],
-    })
+      {
+        environment: 'pr-2/app2',
+        state: DeploymentState.Pending,
+        url: undefined,
+        description: undefined,
+      },
+      {
+        environment: 'pr-2/app3',
+        state: DeploymentState.Queued,
+        url: undefined,
+        description: undefined,
+      },
+    ])
   })
 })
 
@@ -160,9 +126,9 @@ describe('filterDeployments', () => {
   })
 })
 
-describe('determineRollupConclusion', () => {
+describe('rollupDeployments', () => {
   it('returns completed and succeeded if no deployment is given', () => {
-    expect(determineRollupConclusion([])).toStrictEqual({
+    expect(rollupDeployments([])).toStrictEqual({
       completed: true,
       succeeded: true,
       progressing: false,
@@ -191,7 +157,7 @@ describe('determineRollupConclusion', () => {
         description: undefined,
       },
     ]
-    expect(determineRollupConclusion(deployments)).toStrictEqual({
+    expect(rollupDeployments(deployments)).toStrictEqual({
       completed: false,
       succeeded: false,
       progressing: false,
@@ -220,7 +186,7 @@ describe('determineRollupConclusion', () => {
         description: undefined,
       },
     ]
-    expect(determineRollupConclusion(deployments)).toStrictEqual({
+    expect(rollupDeployments(deployments)).toStrictEqual({
       completed: false,
       succeeded: false,
       progressing: true,
@@ -249,7 +215,7 @@ describe('determineRollupConclusion', () => {
         description: undefined,
       },
     ]
-    expect(determineRollupConclusion(deployments)).toStrictEqual({
+    expect(rollupDeployments(deployments)).toStrictEqual({
       completed: false,
       succeeded: false,
       progressing: true,
@@ -278,7 +244,7 @@ describe('determineRollupConclusion', () => {
         description: undefined,
       },
     ]
-    expect(determineRollupConclusion(deployments)).toStrictEqual({
+    expect(rollupDeployments(deployments)).toStrictEqual({
       completed: true,
       succeeded: false,
       progressing: false,
@@ -307,7 +273,7 @@ describe('determineRollupConclusion', () => {
         description: undefined,
       },
     ]
-    expect(determineRollupConclusion(deployments)).toStrictEqual({
+    expect(rollupDeployments(deployments)).toStrictEqual({
       completed: true,
       succeeded: true,
       progressing: false,
