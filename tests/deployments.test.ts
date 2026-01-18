@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest'
-import { type Deployment, rollupDeployments, filterDeployments, parseListDeploymentsQuery } from '../src/deployments.js'
+import { type Deployment, filterDeployments, parseListDeploymentsQuery, rollupDeployments } from '../src/deployments.js'
 import type { ListDeploymentsQuery } from '../src/generated/graphql.js'
 import { DeploymentState } from '../src/generated/graphql-types.js'
 
