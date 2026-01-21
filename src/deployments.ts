@@ -5,7 +5,6 @@ import { DeploymentState } from './generated/graphql-types.js'
 
 export type Rollup = {
   conclusion: RollupConclusion
-  deployments: Deployment[]
 }
 
 export type RollupConclusion = {
@@ -22,7 +21,7 @@ export type Deployment = {
   description: string | undefined
 }
 
-const parseListDeploymentsQuery = (q: ListDeploymentsQuery): Deployment[] => {
+export const parseListDeploymentsQuery = (q: ListDeploymentsQuery): Deployment[] => {
   assert(q.repository != null)
   assert(q.repository.object != null)
   assert.strictEqual(q.repository.object.__typename, 'Commit')
@@ -41,27 +40,15 @@ const parseListDeploymentsQuery = (q: ListDeploymentsQuery): Deployment[] => {
   })
 }
 
-export type RollupOptions = {
+export type FilterOptions = {
   filterEnvironments: string[]
   excludeEnvironments: string[]
 }
 
-export const rollupDeployments = (query: ListDeploymentsQuery, options: RollupOptions): Rollup => {
-  const deployments = filterDeployments(parseListDeploymentsQuery(query), options)
-  sortByEnvironment(deployments)
-  return {
-    conclusion: determineRollupConclusion(deployments),
-    deployments,
-  }
-}
-
-const sortByEnvironment = (deployments: Deployment[]) =>
-  deployments.sort((a, b) => a.environment.localeCompare(b.environment))
-
-export const filterDeployments = (deployments: Deployment[], options: RollupOptions): Deployment[] => {
+export const filterDeployments = (deployments: Deployment[], options: FilterOptions): Deployment[] => {
   const excludeEnvironmentMatchers = options.excludeEnvironments.map((pattern) => minimatch.filter(pattern))
   const filterEnvironmentMatchers = options.filterEnvironments.map((pattern) => minimatch.filter(pattern))
-  return deployments.filter((deployment) => {
+  deployments = deployments.filter((deployment) => {
     if (excludeEnvironmentMatchers.length > 0) {
       if (excludeEnvironmentMatchers.some((matcher) => matcher(deployment.environment))) {
         return false
@@ -74,24 +61,34 @@ export const filterDeployments = (deployments: Deployment[], options: RollupOpti
     }
     return true
   })
+  deployments = sortByEnvironment(deployments)
+  return deployments
 }
 
-export const determineRollupConclusion = (deployments: Deployment[]): RollupConclusion => {
+const sortByEnvironment = (deployments: Deployment[]) =>
+  deployments.sort((a, b) => a.environment.localeCompare(b.environment))
+
+export const rollupDeployments = (deployments: Deployment[]): Rollup => {
   return {
-    completed: deployments.every((deployment) => isDeploymentCompleted(deployment.state)),
-    succeeded: deployments.every(
-      (deployment) => deployment.state === DeploymentState.Active || deployment.state === DeploymentState.Success,
-    ),
-    progressing: deployments.some(
-      (deployment) => deployment.state === DeploymentState.Queued || deployment.state === DeploymentState.InProgress,
-    ),
-    failed: deployments.some(
-      (deployment) => deployment.state === DeploymentState.Failure || deployment.state === DeploymentState.Error,
-    ),
+    conclusion: {
+      completed: deployments.every((deployment) => isDeploymentCompleted(deployment.state)),
+      succeeded: deployments.every(
+        (deployment) => deployment.state === DeploymentState.Active || deployment.state === DeploymentState.Success,
+      ),
+      progressing: deployments.some(
+        (deployment) => deployment.state === DeploymentState.Queued || deployment.state === DeploymentState.InProgress,
+      ),
+      failed: deployments.some(
+        (deployment) => deployment.state === DeploymentState.Failure || deployment.state === DeploymentState.Error,
+      ),
+    },
   }
 }
 
-export const isDeploymentCompleted = (state: DeploymentState) =>
+export const filterCompletedDeployments = (deployments: Deployment[]): Deployment[] =>
+  deployments.filter((deployment) => isDeploymentCompleted(deployment.state))
+
+const isDeploymentCompleted = (state: DeploymentState) =>
   state === DeploymentState.Active ||
   state === DeploymentState.Success ||
   state === DeploymentState.Failure ||
