@@ -1,6 +1,7 @@
 import { describe, expect, it } from 'vitest'
 import {
   type Deployment,
+  filterCompletedDeployments,
   filterDeployments,
   parseListDeploymentsQuery,
   type Rollup,
@@ -110,7 +111,7 @@ describe('filterDeployments', () => {
     },
   ]
 
-  it('returns the filtered deployments', () => {
+  it('filters deployments by glob patterns', () => {
     const options = {
       excludeEnvironments: ['*/app1'],
       filterEnvironments: ['pr-2/*'],
@@ -125,6 +126,45 @@ describe('filterDeployments', () => {
       {
         environment: 'pr-2/app3',
         state: DeploymentState.InProgress,
+        url: undefined,
+        description: undefined,
+      },
+    ])
+  })
+})
+
+describe('filterCompletedDeployments', () => {
+  it('filters out non-completed deployments', () => {
+    const deployments = [
+      {
+        environment: 'pr-2/app1',
+        state: DeploymentState.Active,
+        url: undefined,
+        description: undefined,
+      },
+      {
+        environment: 'pr-2/app2',
+        state: DeploymentState.Pending,
+        url: undefined,
+        description: undefined,
+      },
+      {
+        environment: 'pr-2/app3',
+        state: DeploymentState.Success,
+        url: undefined,
+        description: undefined,
+      },
+    ]
+    expect(filterCompletedDeployments(deployments)).toStrictEqual([
+      {
+        environment: 'pr-2/app1',
+        state: DeploymentState.Active,
+        url: undefined,
+        description: undefined,
+      },
+      {
+        environment: 'pr-2/app3',
+        state: DeploymentState.Success,
         url: undefined,
         description: undefined,
       },
