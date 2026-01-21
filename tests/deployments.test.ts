@@ -1,5 +1,11 @@
 import { describe, expect, it } from 'vitest'
-import { type Deployment, filterDeployments, parseListDeploymentsQuery, rollupDeployments } from '../src/deployments.js'
+import {
+  type Deployment,
+  filterDeployments,
+  parseListDeploymentsQuery,
+  Rollup,
+  rollupDeployments,
+} from '../src/deployments.js'
 import type { ListDeploymentsQuery } from '../src/generated/graphql.js'
 import { DeploymentState } from '../src/generated/graphql-types.js'
 
@@ -128,11 +134,13 @@ describe('filterDeployments', () => {
 
 describe('rollupDeployments', () => {
   it('returns completed and succeeded if no deployment is given', () => {
-    expect(rollupDeployments([])).toStrictEqual({
-      completed: true,
-      succeeded: true,
-      progressing: false,
-      failed: false,
+    expect(rollupDeployments([])).toStrictEqual<Rollup>({
+      conclusion: {
+        completed: true,
+        succeeded: true,
+        progressing: false,
+        failed: false,
+      },
     })
   })
 
@@ -157,11 +165,13 @@ describe('rollupDeployments', () => {
         description: undefined,
       },
     ]
-    expect(rollupDeployments(deployments)).toStrictEqual({
-      completed: false,
-      succeeded: false,
-      progressing: false,
-      failed: false,
+    expect(rollupDeployments(deployments)).toStrictEqual<Rollup>({
+      conclusion: {
+        completed: false,
+        succeeded: false,
+        progressing: false,
+        failed: false,
+      },
     })
   })
 
@@ -186,11 +196,13 @@ describe('rollupDeployments', () => {
         description: undefined,
       },
     ]
-    expect(rollupDeployments(deployments)).toStrictEqual({
-      completed: false,
-      succeeded: false,
-      progressing: true,
-      failed: false,
+    expect(rollupDeployments(deployments)).toStrictEqual<Rollup>({
+      conclusion: {
+        completed: false,
+        succeeded: false,
+        progressing: true,
+        failed: false,
+      },
     })
   })
 
@@ -215,11 +227,13 @@ describe('rollupDeployments', () => {
         description: undefined,
       },
     ]
-    expect(rollupDeployments(deployments)).toStrictEqual({
-      completed: false,
-      succeeded: false,
-      progressing: true,
-      failed: true,
+    expect(rollupDeployments(deployments)).toStrictEqual<Rollup>({
+      conclusion: {
+        completed: false,
+        succeeded: false,
+        progressing: true,
+        failed: true,
+      },
     })
   })
 
@@ -244,11 +258,13 @@ describe('rollupDeployments', () => {
         description: undefined,
       },
     ]
-    expect(rollupDeployments(deployments)).toStrictEqual({
-      completed: true,
-      succeeded: false,
-      progressing: false,
-      failed: true,
+    expect(rollupDeployments(deployments)).toStrictEqual<Rollup>({
+      conclusion: {
+        completed: true,
+        succeeded: false,
+        progressing: false,
+        failed: true,
+      },
     })
   })
 
@@ -273,11 +289,13 @@ describe('rollupDeployments', () => {
         description: undefined,
       },
     ]
-    expect(rollupDeployments(deployments)).toStrictEqual({
-      completed: true,
-      succeeded: true,
-      progressing: false,
-      failed: false,
+    expect(rollupDeployments(deployments)).toStrictEqual<Rollup>({
+      conclusion: {
+        completed: true,
+        succeeded: true,
+        progressing: false,
+        failed: false,
+      },
     })
   })
 })
