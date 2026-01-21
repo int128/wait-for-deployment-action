@@ -3,7 +3,7 @@ import {
   type Deployment,
   filterDeployments,
   parseListDeploymentsQuery,
-  Rollup,
+  type Rollup,
   rollupDeployments,
 } from '../src/deployments.js'
 import type { ListDeploymentsQuery } from '../src/generated/graphql.js'
