@@ -8,6 +8,7 @@ const main = async (): Promise<void> => {
     {
       filterEnvironments: core.getMultilineInput('filter-environments'),
       excludeEnvironments: core.getMultilineInput('exclude-environments'),
+      filterTasks: core.getMultilineInput('filter-tasks'),
       until: parseUntil(core.getInput('until', { required: true })),
       initialDelaySeconds: getRequiredIntInput('initial-delay-seconds'),
       periodSeconds: getRequiredIntInput('period-seconds'),

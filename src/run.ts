@@ -20,6 +20,7 @@ type SummaryMarkdownFlavor = 'github' | 'slack'
 type Inputs = {
   filterEnvironments: string[]
   excludeEnvironments: string[]
+  filterTasks: string[]
   until: 'completed' | 'succeeded'
   initialDelaySeconds: number
   periodSeconds: number
@@ -79,6 +80,7 @@ const poll = async (inputs: Inputs, octokit: Octokit, context: github.Context) =
     const deployments = filterDeployments(parseListDeploymentsQuery(listDeploymentsQuery), {
       filterEnvironments: inputs.filterEnvironments,
       excludeEnvironments: inputs.excludeEnvironments,
+      filterTasks: inputs.filterTasks,
     })
     const rollup = rollupDeployments(deployments)
     if (rollup.conclusion.completed) {
