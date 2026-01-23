@@ -64,7 +64,11 @@ export const filterDeployments = (deployments: Deployment[], options: FilterOpti
       }
     }
     if (filterTaskMatchers.length > 0) {
-      if (!filterTaskMatchers.some((matcher) => matcher(deployment.task ?? ''))) {
+      const task = deployment.task
+      if (task === undefined) {
+        return false
+      }
+      if (!filterTaskMatchers.some((matcher) => matcher(task))) {
         return false
       }
     }
