@@ -41,6 +41,7 @@ describe('parseListDeploymentsQuery', () => {
             nodes: [
               {
                 environment: 'pr-727/app1',
+                task: 'deploy',
                 state: DeploymentState.Active,
                 latestStatus: {
                   description: 'Succeeded:\nsuccessfully synced (all tasks run)',
@@ -50,11 +51,13 @@ describe('parseListDeploymentsQuery', () => {
               },
               {
                 environment: 'pr-2/app2',
+                task: null,
                 state: DeploymentState.Pending,
                 latestStatus: null,
               },
               {
                 environment: 'pr-2/app3',
+                task: null,
                 state: DeploymentState.Queued,
                 latestStatus: null,
               },
@@ -69,18 +72,21 @@ describe('parseListDeploymentsQuery', () => {
     expect(parseListDeploymentsQuery(query)).toStrictEqual<Deployment[]>([
       {
         environment: 'pr-727/app1',
+        task: 'deploy',
         state: DeploymentState.Active,
         url: 'https://argocd.example.com/applications/app1',
         description: 'Succeeded:\nsuccessfully synced (all tasks run)',
       },
       {
         environment: 'pr-2/app2',
+        task: undefined,
         state: DeploymentState.Pending,
         url: undefined,
         description: undefined,
       },
       {
         environment: 'pr-2/app3',
+        task: undefined,
         state: DeploymentState.Queued,
         url: undefined,
         description: undefined,
@@ -93,39 +99,79 @@ describe('filterDeployments', () => {
   const deployments = [
     {
       environment: 'pr-2/app1',
+      task: 'deploy',
       state: DeploymentState.Active,
       url: undefined,
       description: undefined,
     },
     {
       environment: 'pr-2/app2',
+      task: 'check',
       state: DeploymentState.Pending,
       url: undefined,
       description: undefined,
     },
     {
       environment: 'pr-2/app3',
+      task: undefined,
       state: DeploymentState.InProgress,
       url: undefined,
       description: undefined,
     },
   ]
 
-  it('filters deployments by glob patterns', () => {
+  it('filters deployments by environment patterns', () => {
     const options = {
       excludeEnvironments: ['*/app1'],
       filterEnvironments: ['pr-2/*'],
+      filterTasks: [],
     }
     expect(filterDeployments(deployments, options)).toStrictEqual([
       {
         environment: 'pr-2/app2',
+        task: 'check',
         state: DeploymentState.Pending,
         url: undefined,
         description: undefined,
       },
       {
         environment: 'pr-2/app3',
+        task: undefined,
         state: DeploymentState.InProgress,
+        url: undefined,
+        description: undefined,
+      },
+    ])
+  })
+
+  it('excludes deployments by environment patterns', () => {
+    const options = {
+      excludeEnvironments: ['*/app1', '*/app3'],
+      filterEnvironments: ['pr-2/*'],
+      filterTasks: [],
+    }
+    expect(filterDeployments(deployments, options)).toStrictEqual([
+      {
+        environment: 'pr-2/app2',
+        task: 'check',
+        state: DeploymentState.Pending,
+        url: undefined,
+        description: undefined,
+      },
+    ])
+  })
+
+  it('filters deployments by task patterns', () => {
+    const options = {
+      excludeEnvironments: [],
+      filterEnvironments: ['pr-2/*'],
+      filterTasks: ['deploy'],
+    }
+    expect(filterDeployments(deployments, options)).toStrictEqual([
+      {
+        environment: 'pr-2/app1',
+        task: 'deploy',
+        state: DeploymentState.Active,
         url: undefined,
         description: undefined,
       },
@@ -138,18 +184,21 @@ describe('filterCompletedDeployments', () => {
     const deployments = [
       {
         environment: 'pr-2/app1',
+        task: undefined,
         state: DeploymentState.Active,
         url: undefined,
         description: undefined,
       },
       {
         environment: 'pr-2/app2',
+        task: undefined,
         state: DeploymentState.Pending,
         url: undefined,
         description: undefined,
       },
       {
         environment: 'pr-2/app3',
+        task: undefined,
         state: DeploymentState.Success,
         url: undefined,
         description: undefined,
@@ -158,12 +207,14 @@ describe('filterCompletedDeployments', () => {
     expect(filterCompletedDeployments(deployments)).toStrictEqual([
       {
         environment: 'pr-2/app1',
+        task: undefined,
         state: DeploymentState.Active,
         url: undefined,
         description: undefined,
       },
       {
         environment: 'pr-2/app3',
+        task: undefined,
         state: DeploymentState.Success,
         url: undefined,
         description: undefined,
@@ -188,18 +239,21 @@ describe('rollupDeployments', () => {
     const deployments = [
       {
         environment: 'pr-2/app1',
+        task: undefined,
         state: DeploymentState.Pending,
         url: undefined,
         description: undefined,
       },
       {
         environment: 'pr-2/app2',
+        task: undefined,
         state: DeploymentState.Pending,
         url: undefined,
         description: undefined,
       },
       {
         environment: 'pr-2/app3',
+        task: undefined,
         state: DeploymentState.Pending,
         url: undefined,
         description: undefined,
@@ -219,18 +273,21 @@ describe('rollupDeployments', () => {
     const deployments = [
       {
         environment: 'pr-2/app1',
+        task: undefined,
         state: DeploymentState.Pending,
         url: undefined,
         description: undefined,
       },
       {
         environment: 'pr-2/app2',
+        task: undefined,
         state: DeploymentState.InProgress,
         url: undefined,
         description: undefined,
       },
       {
         environment: 'pr-2/app3',
+        task: undefined,
         state: DeploymentState.Queued,
         url: undefined,
         description: undefined,
@@ -250,18 +307,21 @@ describe('rollupDeployments', () => {
     const deployments = [
       {
         environment: 'pr-2/app1',
+        task: undefined,
         state: DeploymentState.Pending,
         url: undefined,
         description: undefined,
       },
       {
         environment: 'pr-2/app2',
+        task: undefined,
         state: DeploymentState.Failure,
         url: undefined,
         description: undefined,
       },
       {
         environment: 'pr-2/app3',
+        task: undefined,
         state: DeploymentState.Queued,
         url: undefined,
         description: undefined,
@@ -281,18 +341,21 @@ describe('rollupDeployments', () => {
     const deployments = [
       {
         environment: 'pr-2/app1',
+        task: undefined,
         state: DeploymentState.Success,
         url: undefined,
         description: undefined,
       },
       {
         environment: 'pr-2/app2',
+        task: undefined,
         state: DeploymentState.Failure,
         url: undefined,
         description: undefined,
       },
       {
         environment: 'pr-2/app3',
+        task: undefined,
         state: DeploymentState.Success,
         url: undefined,
         description: undefined,
@@ -312,18 +375,21 @@ describe('rollupDeployments', () => {
     const deployments = [
       {
         environment: 'pr-2/app1',
+        task: undefined,
         state: DeploymentState.Success,
         url: undefined,
         description: undefined,
       },
       {
         environment: 'pr-2/app2',
+        task: undefined,
         state: DeploymentState.Success,
         url: undefined,
         description: undefined,
       },
       {
         environment: 'pr-2/app3',
+        task: undefined,
         state: DeploymentState.Success,
         url: undefined,
         description: undefined,

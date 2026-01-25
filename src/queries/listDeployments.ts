@@ -15,6 +15,7 @@ const query = /* GraphQL */ `
           deployments(first: 100) {
             nodes {
               environment
+              task
               state
               latestStatus {
                 description

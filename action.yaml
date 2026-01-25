@@ -8,6 +8,9 @@ inputs:
   exclude-environments:
     description: Exclude deployments by environment patterns (multiline)
     required: false
+  filter-tasks:
+    description: Filter deployments by task patterns (multiline)
+    required: false
   until:
     description: Either completed or succeeded
     required: false

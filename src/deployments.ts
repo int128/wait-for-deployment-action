@@ -16,6 +16,7 @@ export type RollupConclusion = {
 
 export type Deployment = {
   environment: string
+  task: string | undefined
   state: DeploymentState
   url: string | undefined
   description: string | undefined
@@ -33,6 +34,7 @@ export const parseListDeploymentsQuery = (q: ListDeploymentsQuery): Deployment[]
     assert(node.state != null)
     return {
       environment: node.environment,
+      task: node.task ?? undefined,
       state: node.state,
       url: node.latestStatus?.logUrl ?? undefined,
       description: node.latestStatus?.description?.trim(),
@@ -43,11 +45,13 @@ export const parseListDeploymentsQuery = (q: ListDeploymentsQuery): Deployment[]
 export type FilterOptions = {
   filterEnvironments: string[]
   excludeEnvironments: string[]
+  filterTasks: string[]
 }
 
 export const filterDeployments = (deployments: Deployment[], options: FilterOptions): Deployment[] => {
   const excludeEnvironmentMatchers = options.excludeEnvironments.map((pattern) => minimatch.filter(pattern))
   const filterEnvironmentMatchers = options.filterEnvironments.map((pattern) => minimatch.filter(pattern))
+  const filterTaskMatchers = options.filterTasks.map((pattern) => minimatch.filter(pattern))
   deployments = deployments.filter((deployment) => {
     if (excludeEnvironmentMatchers.length > 0) {
       if (excludeEnvironmentMatchers.some((matcher) => matcher(deployment.environment))) {
@@ -56,6 +60,15 @@ export const filterDeployments = (deployments: Deployment[], options: FilterOpti
     }
     if (filterEnvironmentMatchers.length > 0) {
       if (!filterEnvironmentMatchers.some((matcher) => matcher(deployment.environment))) {
+        return false
+      }
+    }
+    if (filterTaskMatchers.length > 0) {
+      const task = deployment.task
+      if (task === undefined) {
+        return false
+      }
+      if (!filterTaskMatchers.some((matcher) => matcher(task))) {
         return false
       }
     }
