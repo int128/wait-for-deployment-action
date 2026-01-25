@@ -48,15 +48,17 @@ jobs:
         id: app1
         with:
           environment-suffix: /app1
+          task: task1
       - uses: int128/deployment-action@2fef45e2234199384275d1186f058e9158ee0339 # v1.54.0
         id: app2
         with:
           environment-suffix: /app2
-          task: deploy
+          task: task2
       - uses: int128/deployment-action@2fef45e2234199384275d1186f058e9158ee0339 # v1.54.0
         id: app3
         with:
           environment-suffix: /app3
+          task: task3
 
   create-deployment-statuses:
     needs: create-deployments
