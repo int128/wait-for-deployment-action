@@ -58,7 +58,6 @@ jobs:
         id: app3
         with:
           environment-suffix: /app3
-          task: task3
 
   create-deployment-statuses:
     needs: create-deployments
