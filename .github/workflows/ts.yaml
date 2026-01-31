@@ -48,10 +48,12 @@ jobs:
         id: app1
         with:
           environment-suffix: /app1
+          task: task1
       - uses: int128/deployment-action@2fef45e2234199384275d1186f058e9158ee0339 # v1.54.0
         id: app2
         with:
           environment-suffix: /app2
+          task: task2
       - uses: int128/deployment-action@2fef45e2234199384275d1186f058e9158ee0339 # v1.54.0
         id: app3
         with:
@@ -68,37 +70,40 @@ jobs:
           deployment_id: ${{ needs.create-deployments.outputs.app1 }}
         with:
           script: |
-            await github.rest.repos.createDeploymentStatus({
+            const { data: deploymentStatus } = await github.rest.repos.createDeploymentStatus({
               owner: context.repo.owner,
               repo: context.repo.repo,
               deployment_id: process.env.deployment_id,
               state: 'success',
               log_url: `https://argocd.example.com/pr-${context.issue.number}--app1`,
             })
+            core.info(JSON.stringify(deploymentStatus, null, 2))
       - uses: actions/github-script@ed597411d8f924073f98dfc5c65a23a2325f34cd # v8.0.0
         env:
           deployment_id: ${{ needs.create-deployments.outputs.app2 }}
         with:
           script: |
-            await github.rest.repos.createDeploymentStatus({
+            const { data: deploymentStatus } = await github.rest.repos.createDeploymentStatus({
               owner: context.repo.owner,
               repo: context.repo.repo,
               deployment_id: process.env.deployment_id,
               state: 'success',
               log_url: `https://argocd.example.com/pr-${context.issue.number}--app2`,
             })
+            core.info(JSON.stringify(deploymentStatus, null, 2))
       - uses: actions/github-script@ed597411d8f924073f98dfc5c65a23a2325f34cd # v8.0.0
         env:
           deployment_id: ${{ needs.create-deployments.outputs.app3 }}
         with:
           script: |
-            await github.rest.repos.createDeploymentStatus({
+            const { data: deploymentStatus } = await github.rest.repos.createDeploymentStatus({
               owner: context.repo.owner,
               repo: context.repo.repo,
               deployment_id: process.env.deployment_id,
               state: 'success',
               log_url: `https://argocd.example.com/pr-${context.issue.number}--app3`,
             })
+            core.info(JSON.stringify(deploymentStatus, null, 2))
 
   wait-for-deployment:
     needs: create-deployments

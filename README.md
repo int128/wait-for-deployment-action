@@ -96,6 +96,7 @@ If `timeout-seconds` is not set, this action waits forever until the condition i
 | ------------------------- | -------------- | ------------------------------------------------------- |
 | `filter-environments`     | -              | Filter deployments by environment patterns              |
 | `exclude-environments`    | -              | Exclude deployments by environment patterns             |
+| `filter-tasks`            | -              | Filter deployments by task patterns                     |
 | `until`                   | (required)     | Either `completed` or `succeeded`                       |
 | `initial-delay-seconds`   | 10             | Initial delay before polling in seconds                 |
 | `period-seconds`          | 15             | Polling interval in seconds                             |
