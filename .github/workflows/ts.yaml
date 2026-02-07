@@ -44,17 +44,17 @@ jobs:
       app2: ${{ steps.app2.outputs.id }}
       app3: ${{ steps.app3.outputs.id }}
     steps:
-      - uses: int128/deployment-action@2fef45e2234199384275d1186f058e9158ee0339 # v1.54.0
+      - uses: int128/deployment-action@d85199cef58a197e2bd8c2aa36b03811df47f808 # v1.55.0
         id: app1
         with:
           environment-suffix: /app1
           task: task1
-      - uses: int128/deployment-action@2fef45e2234199384275d1186f058e9158ee0339 # v1.54.0
+      - uses: int128/deployment-action@d85199cef58a197e2bd8c2aa36b03811df47f808 # v1.55.0
         id: app2
         with:
           environment-suffix: /app2
           task: task2
-      - uses: int128/deployment-action@2fef45e2234199384275d1186f058e9158ee0339 # v1.54.0
+      - uses: int128/deployment-action@d85199cef58a197e2bd8c2aa36b03811df47f808 # v1.55.0
         id: app3
         with:
           environment-suffix: /app3
