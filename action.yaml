@@ -54,5 +54,5 @@ outputs:
     description: JSON representation of all deployments
 
 runs:
-  using: 'node20'
+  using: 'node24'
   main: 'dist/index.js'
