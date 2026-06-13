@@ -1,7 +1,7 @@
 import assert from 'node:assert'
+import { matchesGlob } from 'node:path'
 import type { ListDeploymentsQuery } from './generated/graphql.js'
 import { DeploymentState } from './generated/graphql-types.js'
-import { matchesGlob } from 'node:path'
 
 export type Rollup = {
   conclusion: RollupConclusion
