@@ -88,6 +88,22 @@ This action determines the exit code based on the condition at the timeout.
 
 If `timeout-seconds` is not set, this action waits forever until the condition is met.
 
+### Filter deployments
+
+You can set glob patterns to filter deployments by environment or task.
+It supports multiple patterns separated by newlines.
+It also supports negation patterns.
+For example,
+
+```yaml
+with:
+  filter-environments: |
+    pr-*
+    !pr-123
+```
+
+If both `filter-environments` and `exclude-environments` are set, this action applies `exclude-environments` first and then applies `filter-environments`.
+
 ## Specification
 
 ### Inputs
