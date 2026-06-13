@@ -1,5 +1,5 @@
 import assert from 'node:assert'
-import * as minimatch from 'minimatch'
+import { matchesGlob } from 'node:path'
 import type { ListDeploymentsQuery } from './generated/graphql.js'
 import { DeploymentState } from './generated/graphql-types.js'
 
@@ -49,34 +49,35 @@ export type FilterOptions = {
 }
 
 export const filterDeployments = (deployments: Deployment[], options: FilterOptions): Deployment[] => {
-  const excludeEnvironmentMatchers = options.excludeEnvironments.map((pattern) => minimatch.filter(pattern))
-  const filterEnvironmentMatchers = options.filterEnvironments.map((pattern) => minimatch.filter(pattern))
-  const filterTaskMatchers = options.filterTasks.map((pattern) => minimatch.filter(pattern))
-  deployments = deployments.filter((deployment) => {
-    if (excludeEnvironmentMatchers.length > 0) {
-      if (excludeEnvironmentMatchers.some((matcher) => matcher(deployment.environment))) {
-        return false
-      }
-    }
-    if (filterEnvironmentMatchers.length > 0) {
-      if (!filterEnvironmentMatchers.some((matcher) => matcher(deployment.environment))) {
-        return false
-      }
-    }
-    if (filterTaskMatchers.length > 0) {
-      const task = deployment.task
-      if (task === undefined) {
-        return false
-      }
-      if (!filterTaskMatchers.some((matcher) => matcher(task))) {
-        return false
-      }
-    }
-    return true
-  })
+  const excludeEnvironmentMatchers = createGlobMatcher(options.excludeEnvironments, false)
+  const filterEnvironmentMatchers = createGlobMatcher(options.filterEnvironments)
+  const filterTaskMatchers = createGlobMatcher(options.filterTasks)
+  deployments = deployments.filter(
+    (deployment) =>
+      !excludeEnvironmentMatchers(deployment.environment) &&
+      filterEnvironmentMatchers(deployment.environment) &&
+      filterTaskMatchers(deployment.task ?? ''),
+  )
   deployments = sortByEnvironment(deployments)
   return deployments
 }
+
+const createGlobMatcher =
+  (patterns: string[], defaultValue = true) =>
+  (target: string): boolean => {
+    if (patterns.length === 0) {
+      return defaultValue
+    }
+    let matched = false
+    for (const pattern of patterns) {
+      if (pattern.startsWith('!')) {
+        matched = matched && !matchesGlob(target, pattern.slice(1))
+      } else {
+        matched = matched || matchesGlob(target, pattern)
+      }
+    }
+    return matched
+  }
 
 const sortByEnvironment = (deployments: Deployment[]) =>
   deployments.sort((a, b) => a.environment.localeCompare(b.environment))
