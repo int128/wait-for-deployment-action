@@ -17,11 +17,11 @@ inputs:
   initial-delay-seconds:
     description: Initial delay before polling in seconds
     required: true
-    default: '10'
+    default: "10"
   period-seconds:
     description: Polling interval in seconds
     required: true
-    default: '15'
+    default: "15"
   timeout-seconds:
     description: If set, poll until the timeout
     required: false
@@ -54,5 +54,5 @@ outputs:
     description: JSON representation of all deployments
 
 runs:
-  using: 'node24'
-  main: 'dist/index.js'
+  using: "node24"
+  main: "dist/index.js"
